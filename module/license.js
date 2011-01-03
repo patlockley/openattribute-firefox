@@ -3,6 +3,7 @@ var EXPORTED_SYMBOLS = ["licenseloader"];
 Components.utils.import("resource://ccffext/ccffext.js");
 
 var licenseloader = {
+	
     timer : Components.classes["@mozilla.org/timer;1"]
         .createInstance(Components.interfaces.nsITimer),
     license_frame : null,
@@ -62,6 +63,7 @@ var licenseloader = {
     _check_queue : function () {
 
 	if (licenseloader.queue.length > 0) {
+
 	    // see if we're currently working
 	    if (licenseloader.working == true) {
 		licenseloader.timer.initWithCallback(

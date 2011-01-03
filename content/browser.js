@@ -67,6 +67,7 @@ var gCcHandler = {
 	var is_doc_licensed = false;
 
 	if ("undefined" != typeof license) {
+		
 	    // document is licensed
 	    is_doc_licensed = true;
 
@@ -135,7 +136,8 @@ var gCcHandler = {
 
 	// how many licensed objects described by this page, excluding the page
 	var count = ccffext.objects.getLicensedSubjects(
-	    content.document.location.href).length - (is_doc_licensed?1:0);
+	    content.document.location.href).length - (is_doc_licensed?1:0);	
+		
 	if (count > 0) {
 	    this._popup_num_licensed_objects.value = 
 		ccffext.l10n.get("icon.title.label", count);
@@ -143,11 +145,14 @@ var gCcHandler = {
 	}
 
 	// show the popup
-	this._popup.hidden = false;
+	
 
 	var position = (getComputedStyle(gNavToolbox, "").direction == "rtl") ? 'after_end' : 'after_start';
 
 	this._popup.openPopup(this._icon, position);
+	
+	this._popup.hidden = false;
+	
     },
 
     handleMoreInfo : function(e) {
@@ -156,12 +161,12 @@ var gCcHandler = {
     },
 
     hidePopup : function() {
-	document.getElementById('ccffext-popup').hidePopup();
+	  document.getElementById('ccffext-popup').hidePopup();
     },
 
     // URL Bar manipulators
     hideIcon : function() {
-	this._icon.hidden = true;
+	  this._icon.hidden = true;
     },
     
     showIcon : function(document) {

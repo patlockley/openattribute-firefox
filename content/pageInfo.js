@@ -31,6 +31,7 @@
     
     // List of added items
     var items = [];
+	
 }
 
 /**
