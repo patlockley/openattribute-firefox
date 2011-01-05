@@ -41,12 +41,12 @@ Util.uri.join = function(given, base){
     if (baseHash > 0) 
         base = base.slice(0, baseHash);
     if (given.length == 0) 
-        return base // before chopping its filename off
+        return base; // before chopping its filename off
     if (given.indexOf('#') == 0) 
-        return base + given;
+        return base + given ;
     var colon = given.indexOf(':');
     if (colon >= 0) 
-        return given // Absolute URI form overrides base URI
+        return given; // Absolute URI form overrides base URI
     var baseColon = base.indexOf(':');
     if (base == "") 
         return given;
@@ -965,52 +965,58 @@ function RDFMakeTerm(formula, val){
 
 // add a triple to the store
 RDFIndexedFormula.prototype.add = function(subj, pred, obj, why){
-    var action, st, hashS, hashP, hashO;
-    
-    if (typeof obj == 'undefined') {
-        throw ('Undefined object in identity.js#RDFIndexedFormula.prototype.add, subj=' +
-        subj +
-        ', pred=' +
-        pred)
-    }
-    
-    subj = RDFMakeTerm(this, subj);
-    pred = RDFMakeTerm(this, pred);
-    obj = RDFMakeTerm(this, obj);
-    why = RDFMakeTerm(this, why);
-    
-    
-    // Look for strange bug that this is called with no object very occasionally
-    // and only when running script in file: space
-    if (typeof obj == 'undefined') {
-        throw ('Undefined object in identity.js#RDFIndexedFormula.prototype.add, subj=' +
-        subj +
-        ', pred=' +
-        pred)
-    }
-    
-    
-    
-    var hashS = subj.hashString();
-    var hashP = pred.hashString();
-    var hashO = obj.hashString();
-    
-    // Check we don't already know it -- esp when working with dbview
-    st = this.anyStatementMatching(subj, pred, obj) // @@@@@@@ temp fix <====WATCH OUT!
-    if (typeof st != 'undefined') 
-        return; // already in store
-    //    tabulator.log.debug("\nActions for "+s+" "+p+" "+o+". size="+this.statements.length)
-    if (typeof this.predicateCallback != 'undefined') 
-        this.predicateCallback(this, pred, why);
-    
-    // Action return true if the statement does not need to be added
-    action = this.propertyAction[hashP];
-    if (action && action(this, subj, pred, obj, why)) 
-        return;
-    
-    st = new RDFStatement(subj, pred, obj, why);
-    if (typeof this.subjectIndex[hashS] == 'undefined') 
-        this.subjectIndex[hashS] = [];
+	
+	//alert("add " + subj + " - " + pred + " - " + obj + " - " + why)
+	
+	var action, st, hashS, hashP, hashO;
+	
+	if (typeof obj == 'undefined') {
+	
+		throw ('Undefined object in identity.js#RDFIndexedFormula.prototype.add, subj=' +
+		subj +
+		', pred=' +
+		pred)
+	}
+	
+	subj = RDFMakeTerm(this, subj);
+	pred = RDFMakeTerm(this, pred);
+	obj = RDFMakeTerm(this, obj);
+	why = RDFMakeTerm(this, why);
+	
+	
+	// Look for strange bug that this is called with no object very occasionally
+	// and only when running script in file: space
+	if (typeof obj == 'undefined') {
+	
+		throw ('Undefined object in identity.js#RDFIndexedFormula.prototype.add, subj=' +
+		subj +
+		', pred=' +
+		pred)
+	}
+	
+	
+	
+	var hashS = subj.hashString();
+	var hashP = pred.hashString();
+	var hashO = obj.hashString();
+	
+	// Check we don't already know it -- esp when working with dbview
+	st = this.anyStatementMatching(subj, pred, obj) // @@@@@@@ temp fix <====WATCH OUT!
+	if (typeof st != 'undefined') {
+		return;
+	}
+	if (typeof this.predicateCallback != 'undefined') 
+		this.predicateCallback(this, pred, why);
+	
+	
+	// Action return true if the statement does not need to be added
+	action = this.propertyAction[hashP];
+	if (action && action(this, subj, pred, obj, why)) 
+		return;
+	
+	st = new RDFStatement(subj, pred, obj, why);
+	if (typeof this.subjectIndex[hashS] == 'undefined')	
+		this.subjectIndex[hashS] = [];	
     this.subjectIndex[hashS].push(st); // Set of things with this as subject
     if (typeof this.predicateIndex[hashP] == 'undefined') 
         this.predicateIndex[hashP] = [];
@@ -1018,10 +1024,13 @@ RDFIndexedFormula.prototype.add = function(subj, pred, obj, why){
     if (typeof this.objectIndex[hashO] == 'undefined') 
         this.objectIndex[hashO] = [];
     this.objectIndex[hashO].push(st); // Set of things with this as object
-    //tabulator.log.debug("ADDING    {"+subj+" "+pred+" "+obj+"} "+why);
     var newIndex = this.statements.push(st);
-    return this.statements[newIndex - 1];
-}; //add
+	
+    return this.statements[newIndex-1];
+}; 
+
+
+//add
 // Find out whether a given URI is used as symbol in the formula
 RDFIndexedFormula.prototype.mentionsURI = function(uri){
     var hash = '<' + uri + '>';
@@ -1544,8 +1553,7 @@ XH.RDF_URI = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 XH.XHTML_PREFIX = 'xh';
 XH.XHTML_URI = 'http://www.w3.org/1999/xhtml/vocab#';
 
-XH.transform = function(element){
-	   
+XH.transform = function(element){   
    
     // recurse down the children
     // depth-first search here, because we don't need to
@@ -1638,10 +1646,13 @@ XH.transform = function(element){
 //
 
 RDFA.add_triple = function(base, subject, predicate, object, literal_p, literal_datatype, literal_lang){
+	
+	//alert("add triple " + base + " - " + subject + " - " + predicate + " - " + object + " - " + literal_p + " - " + literal_datatype + " - " + literal_lang)
+	
     // 2008-01-18 JT
     // changed the test here, since an empty string is a valid (and meaningful)
     // URI
-    
+	
     if (subject == null) {
         return null;
     }
@@ -1650,19 +1661,34 @@ RDFA.add_triple = function(base, subject, predicate, object, literal_p, literal_
         // likely a bad CURIE
         return null;
     }
-    
-    // if subject is string, then create a URI
-    if (typeof(subject) == 'string') 
-        subject = new RDFSymbol(Util.uri.join(subject, base));
-    
-    if (literal_p) {
-        object = new RDFLiteral(object, literal_lang, literal_datatype);
-    }
-    else {
-        if (typeof(object) == 'string') 
-            object = new RDFSymbol(Util.uri.join(object, base));
-    }
-    
+	
+	var subject_set = false;
+	var object_set = false;
+	
+	//if (base.indexOf("flickr.com") == -1) {
+	
+		// if subject is string, then create a URI
+		if (typeof(subject) == 'string') {
+		
+			subject = new RDFSymbol(Util.uri.join(subject, base));
+			
+		}
+		
+		if (literal_p) {
+			object = new RDFLiteral(object, literal_lang, literal_datatype);
+		}
+		else {
+			if (typeof(object) == 'string') {
+			
+				object = new RDFSymbol(Util.uri.join(object, base));
+				
+			}
+			
+			
+		}
+		
+	//}
+	    
     return RDFA.triplestore.add(subject, predicate, object, 'RDFa');
 };
 
@@ -1706,11 +1732,14 @@ RDFA.add_namespaces = function(element, namespaces){
 
 RDFA.associateElementAndSubject = function(element, subject, namespaces){
 	
+	//alert("associateElementAndSubject " + element + " - " + subject + " - " + namespaces);
+	
     RDFA.elements_by_subject[subject] = element;
     RDFA.elements.push(element);
     
     element._RDFA_SUBJECT = subject;
     element._RDFA_NAMESPACES = RDFA.object_copy(namespaces);
+	
 };
 
 RDFA.init_hanging = function(subject, base, namespaces){
@@ -1741,6 +1770,9 @@ RDFA.add_hanging_rev = function(hanging, subject, rev, base, namespaces){
 };
 
 RDFA.complete_hanging = function(hanging, new_object){
+	
+	//alert("complete hanging")
+	
     // nothing hanging?
     if (hanging == null) {
         return {
@@ -1773,7 +1805,7 @@ RDFA.clear_hanging = function(hanging){
     return null;
 }
 
-var wikipedia_image=false;
+var next_node = false;
 
 // this function takes a given element in the DOM tree and:
 //
@@ -1797,7 +1829,7 @@ RDFA.traverse = function(element, subject, namespaces, lang, base, hanging){
 	var element_to_callback = element;
 	
 	// fetch some attributes so we don't need to refetch multiple times, and so code is cleaner.
-	var attr_names = ['about', 'src', 'resource', 'href', 'instanceof', 'typeof', 'rel', 'rev', 'property', 'content', 'datatype'];
+	var attr_names = ['class','about', 'src', 'resource', 'href', 'instanceof', 'typeof', 'rel', 'rev', 'property', 'content', 'datatype'];
 	var attrs = {};
 	for (var i = 0; i < attr_names.length; i++) 
 		attrs[attr_names[i]] = RDFA.getNodeAttributeValue(element, attr_names[i]);
@@ -1892,12 +1924,15 @@ RDFA.traverse = function(element, subject, namespaces, lang, base, hanging){
     // Now we handle the hanging stuff
     // Ben: bug fix for @about="" (2008-11-03)
     if (explicit_subject != null) {
-        subject = explicit_subject;
-        RDFA.associateElementAndSubject(element, RDFA.triplestore.sym(explicit_subject), namespaces);
+        //subject = explicit_subject;
+		//alert("hmmmmm")
+		
+		
+       // RDFA.associateElementAndSubject(element, RDFA.triplestore.sym(explicit_subject), namespaces);
         
         // complete hanging if necessary
-        var hanging_result = RDFA.complete_hanging(hanging, explicit_subject);
-        hanging = hanging_result.new_hanging;
+        //var hanging_result = RDFA.complete_hanging(hanging, explicit_subject);
+        //	hanging = hanging_result.new_hanging;
     }
     else {
 		
@@ -1955,8 +1990,9 @@ RDFA.traverse = function(element, subject, namespaces, lang, base, hanging){
             }
             else {
                 content = element.innerHTML;
-                if (content != element.textContent) 
-                    datatype = "rdf:XMLLiteral";
+                if (content != element.textContent)
+					datatype = "rdf:XMLLiteral";
+					                    
             }
         }
         
@@ -1967,17 +2003,54 @@ RDFA.traverse = function(element, subject, namespaces, lang, base, hanging){
         
         // go through each prop
         RDFA.each_prefixed_attr_value(attrs['property'], function(prop_value){
-            var property = RDFA.CURIE.parse(prop_value, namespaces);
+			
+            var property = RDFA.CURIE.parse(prop_value, namespaces);						
             var triple = RDFA.add_triple(base, subject, property, content, true, datatype, lang);
             RDFA.CALLBACK_NEW_TRIPLE_WITH_LITERAL_OBJECT(element_to_callback, triple);
         });
     }
+	
+	//
+	// PL ---> NY Code to handle a fake Triple for Flickr Authors
+	//
+	
+	if(attrs['class']=="username")
+		next_node=true;
+		
+	if (attrs['href'] != null) {
+	
+		if (next_node && (attrs['href'].indexOf("/photos/") != -1)) 
+			explicit_object = element.innerHTML;
+		
+	}
     
     // if we have an explicit object, we chain
-    if (explicit_object != null) {
+    if (explicit_object != null) {		
 		
-		RDFA.associateElementAndSubject(element, explicit_object, namespaces);
-        subject = explicit_object;
+		if(next_node){
+			
+			//
+			// PL ---> NY code to handle fake flickr triple
+			//
+					
+        	//RDFA.each_prefixed_attr_value(attrs['property'], function(prop_value){
+            	var property = RDFA.CURIE.parse("cc:attributionName", namespaces);
+								
+				var triple = RDFA.add_triple(base, subject, property, explicit_object, true, datatype, lang);
+            	RDFA.CALLBACK_NEW_TRIPLE_WITH_LITERAL_OBJECT(element_to_callback, triple);
+        	//});
+			
+        	subject = explicit_object;
+			next_node=false;
+			
+		}else{
+						
+			RDFA.associateElementAndSubject(element, explicit_object, namespaces);
+        	subject = explicit_object;			
+			
+		}
+		
+		
 		
     }
     

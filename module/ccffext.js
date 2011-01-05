@@ -434,6 +434,67 @@ var ccffext =
 
 	}, // getAtttributionHtml
 
+	/**
+	 * Returns a source for a licensed object.
+	 *
+	 * @param doc_uri URI of the document to search assertions from.
+	 * @param object The object
+	 */
+	getAttributionText : function(doc_uri, object) {
+		
+		/*
+
+	   // get the license and other bits of information for this object
+	    license = ccffext.objects.getLicenseDetails(doc_uri, object);
+
+	    title = ccffext.objects.getTitle(doc_uri, object);
+
+	    identifier_name = null;
+	    identifier_url = null;
+
+	    attrib_name = ccffext.objects.getAuthor(doc_uri, object);
+	    attrib_url = ccffext.objects.getAuthorUri(doc_uri, object);
+	    
+	    // create the pieces for the attribution HTML
+	    attrib_pieces = new Array()
+	    
+
+	    // -- title
+	    if (title) {
+			attrib_pieces.push("Title: '" + title + "'");
+	    }
+
+	    // -- attrib name/URL
+	    if ("undefined" != typeof attrib_name || 
+		"undefined" != typeof attrib_url) {
+		// we have at least one of the name + URL
+		if ("undefined" == typeof attrib_url) {
+		    // no attribution URL
+		    attrib_pieces.push("Author: '" + attrib_name + "'");
+
+		} else // we have the attribution URL; see if we have the name
+		    if ("undefined" == typeof attrib_name) {
+
+			// w/o attrib_name we include the URL as the link text
+			// but do not annotate it as the attribution name
+			attrib_pieces.push("Citation Link: '" + attrib_url.uri + "'");
+			
+		    } else {
+
+			attrib_pieces.push("Citation Link: '" + attrib_url.uri + "'");
+			
+		    }
+
+	    } 
+		
+	    attrib_pieces.push("License: '" + license.name + "' License Link: '" + license.uri + "'");
+
+	    return attrib_pieces.join(",");
+		
+		*/
+
+	},//getAttributionText
+
 	// Return the license for the specified object
 	getLicense : function(doc_uri, object) {
 

@@ -47,7 +47,7 @@
 	setAttribute("accesskey",ccffext.l10n.get("tab.title.key"));
 	
 	addEventListener("command",function() {
-
+		
 	    const doc = window.opener.content.document;
 	    const objects = ccffext.objects.getLicensedSubjects(
 		doc.location.href);
@@ -62,6 +62,7 @@
 		list.removeChild(items[i]);
 	    }
 	    
+		
 	    items = [];
 	    
 	    var convertStrings = function(strings,part)
@@ -79,6 +80,8 @@
 	    }
 	    
 	    // Add new items to the list
+		
+		
 	    for (let i = 0; i < objects.length; ++i)
 	    {
 		const item = document.createElement("hbox");
@@ -117,8 +120,10 @@
 		},true);
 		sourceLine.appendChild(sourceValue);
 		
+		
 		var type = ccffext.objects.getType(
 		    doc.location.href, objects[i]);
+			
 		if ("undefined" != typeof type)
 		{
 		    const typeLine = document.createElement("hbox");
@@ -137,12 +142,16 @@
 		    typeLine.appendChild(typeValue);
 		}
 		
+		
 		var author = ccffext.objects.getAuthor(
 		    doc.location.href, objects[i]);
 		var authorUri = ccffext.objects.getAuthorUri(
 		    doc.location.href, objects[i]);
+			
+			
 		if ("undefined" != typeof author)
 		{
+			
 		    const authorLine = document.createElement("hbox");
 		    authorLine.setAttribute("class","line");
 		    leftPanel.appendChild(authorLine);
@@ -155,14 +164,26 @@
 		    const authorValue = document.createElement("label");
 		    authorValue.setAttribute("value",author);
 		    authorLine.appendChild(authorValue);
+			
+			// 
+			// PL ---> Changing this from "undefined" to undefined seems to work? for the problem below
+			//
 		    
-		    if ("undefined" != authorUri)
+		    if (authorUri!=undefined)
 		    {
-			authorValue.setAttribute("class","anchor");
-			authorValue.setAttribute("uri",authorUri.uri);
-			authorValue.addEventListener("click",function(event) {
+								
+				authorValue.setAttribute("class","anchor");	
+				
+				//
+				// PL ----> NY this line dies when you have an author but not an author URI - see above
+				//
+						
+				authorValue.setAttribute("uri",authorUri.uri);			
+				authorValue.addEventListener("click",function(event) {					
 			    window.open(this.getAttribute("uri"));
-			},true);
+				},true);
+			
+			
 		    }
 		}
 		
@@ -202,17 +223,11 @@
 		    attribText.select();
 		}, true);
 		attribContainer.appendChild(attribText);
-
-		ccffext.objects.getLicenseDetails(
-		    doc.location.href, objects[i],
-		    function(doc_uri, obj, license, args) {
-			args[0].setAttribute("value",license.name);
-			args[0].setAttribute("uri",license.uri);
-			args[1].setAttribute(
-			    "value", 
-			    ccffext.objects.getAttributionHtml(doc_uri, obj));
-		    }, licenseloader, [licenseValue, attribText]);
-
+		
+		//
+		// PL ---> NY Moved this function up to make it neater
+		//
+		
 		const attribCopyButton = document.createElement("button");
 		attribCopyButton.setAttribute("label",
 					      ccffext.l10n.get("copy"));
@@ -224,8 +239,64 @@
 		    clipboard.copyString(attribText.getAttribute("value"));
 		},true);
 		
-		attribContainer.appendChild(attribCopyButton);
+		const plainTextLine = document.createElement("vbox");
+		plainTextLine.setAttribute("class","line primary");
+		leftPanel.appendChild(plainTextLine);
+		
+		const plainTextTitle = document.createElement("label");
+		plainTextTitle.setAttribute("class","line-title");
+		plainTextTitle.setAttribute("value",
+					 ccffext.l10n.get("object.attribution.label"));
+		plainTextLine.appendChild(plainTextTitle);
+		
+		const plainTextContainer = document.createElement("hbox");
+		plainTextContainer.setAttribute("class", "indented");
+		plainTextLine.appendChild(plainTextContainer);
+		
+		var plainTextText = document.createElement("textbox");
+		plainTextText.setAttribute("flex","1");
+		plainTextText.addEventListener("focus", function(e) {
+		    plainTextText.select();
+		}, true);
+		plainTextContainer.appendChild(plainTextText);
+		
+		const plainTextCopyButton = document.createElement("button");
+		plainTextCopyButton.setAttribute("label",
+					      ccffext.l10n.get("copy"));
+		plainTextCopyButton.addEventListener("click",function() {
+		    const plainTextclipboard = Components.classes["@mozilla.org/widget/clipboardhelper;1"].
+			getService(Components.interfaces.nsIClipboardHelper);
+		    plainTextclipboard.copyString(plaintTextText.getAttribute("value"));
+		},true);
+
+		ccffext.objects.getLicenseDetails(
+		    doc.location.href, objects[i],
+		    function(doc_uri, obj, license, args) {
+				
+			alert(args)				
+				
+			args[0].setAttribute("value",license.name);
+			args[0].setAttribute("uri",license.uri);
+			args[1].setAttribute("value",ccffext.objects.getAttributionHtml(doc_uri, obj));
+		    },licenseloader, [licenseValue, attribText]);
+					
+			attribContainer.appendChild(attribCopyButton);
+			
 	    }
+		
+		//ccffext.objects.getLicenseDetails(
+		    //doc.location.href, objects[i],
+		    //function(doc_uri, obj, license, args) {
+			
+				//plainTextText.setAttribute("value",ccffext.objects.getAttributionText(doc_uri, obj));
+				
+		    //},licenseloader, [licenseValue, plainTextText]);
+			plainTextText.setAttribute("value","tree");		
+			plainTextContainer.appendChild(plainTextCopyButton);
+			//ccffext.objects.getAttributionHtml(doc_uri, obj);
+			
+	    //}
+		
 	    
 	    // Eventually switch to the tab
 	    showTab('ccffext'); // Activates a panel with the "ccffextPanel" id
