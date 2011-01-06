@@ -172,15 +172,30 @@ var ccffext =
 	 * @param subject The subject object to return predicate-object pairs for.
 	 * @return array An array of two element (predicate, object) arrays.
 	 */
-	getPredObjPairs : function(doc_uri,subject)
+	getPredObjPairs : function(doc_uri,subject,gc_class)
 	{
 	    var pairs = [];
+		
+		if(gc_class!=undefined){
+			
+				//gc_class.debug_message(doc_uri + " ---- " + subject)
+			
+		}else{
+			
+			//ccffext.gc_class.debug_message("test");
+			
+		}
+		
+		ccffext.gc_class.debug_message("DOC URI IS " + doc_uri)
 	    
 	    let statements = ccffext.cache.get(doc_uri).statements;
 	    for (let i = 0; i < statements.length; ++i)
 	    {
 		if (statements[i].subject.uri == subject.uri)
 		{
+			
+			
+			
 		    pairs.push([statements[i].predicate,statements[i].object]);
 		}
 	    }
@@ -198,15 +213,25 @@ var ccffext =
 	 *
 	 **/
 	getValue : function(doc_uri, subject, predicates) {
+		
+		ccffext.gc_class.debug_message("getting G V " + subject)
+		
+		ccffext.gc_class.debug_message("predicates are " + predicates)
 
 	    for each (let p in predicates) {
-		for (let i = 0, 
-		     pairs = ccffext.objects.getPredObjPairs(doc_uri,subject); 
-		     i < pairs.length; ++i) {
-		    if (pairs[i][0].uri == p) {
-			return pairs[i][1];
-		    }
-		}
+			
+			ccffext.gc_class.debug_message("P is " + p)
+			
+			for (let i = 0, 
+		     	pairs = ccffext.objects.getPredObjPairs(doc_uri,subject); 
+		     	i < pairs.length; ++i) {
+		    	if (pairs[i][0].uri == p) {
+					
+					ccffext.gc_class.debug_message(pairs[i][0].uri + " -*- " + p)
+					
+				return pairs[i][1];
+		    	}
+			}
 	    }
 	    
 	    return undefined;
@@ -353,10 +378,14 @@ var ccffext =
 	 * @param doc_uri URI of the document to search assertions from.
 	 * @param object The object
 	 */
-	getAttributionHtml : function(doc_uri, object) {
-
+	getAttributionHtml : function(doc_uri, object, gc_class) {
+		
+		ccffext.gc_class = gc_class;
+		
 	    // get the license and other bits of information for this object
 	    license = ccffext.objects.getLicenseDetails(doc_uri, object);
+
+		ccffext.gc_class.debug_message("ABOUT TO GET TITLE")
 
 	    title = ccffext.objects.getTitle(doc_uri, object);
 
@@ -497,6 +526,8 @@ var ccffext =
 
 	// Return the license for the specified object
 	getLicense : function(doc_uri, object) {
+		
+		ccffext.gc_class.debug_message("getting License")
 
 	    return ccffext.objects.getValue(
 		doc_uri, object, ccffext.objects.predicates);
@@ -515,64 +546,35 @@ var ccffext =
 	 */
 	getLicenseDetails : function(doc_uri, object, callback, licenseloader, cb_args)
 	{
-
-	    var license =
+		
+		ccffext.gc_class.debug_message("getting L D")
+		
+		var license =
 		{
-		    name : undefined,
-		    uri : undefined,
-		    code : undefined,
-		    color : undefined
+			name : undefined,
+			uri : undefined,
+			code : undefined,
+			color : undefined
 		};
-	    
-	    license.uri = license.name = ccffext.objects.getLicense(doc_uri, object).uri;
-	    
-	    if ("undefined" != typeof license.uri &&
-		license.uri.indexOf("http://creativecommons.org/") == 0)
-	    {
-		// This is a Creative Commons license;
-		// make sure we're using the canonical URI
-		if (license.uri.lastIndexOf("/") < license.uri.length - 1) {
-		    // strip off the trailing bit
-		    license.uri = license.uri.slice(0, license.uri.lastIndexOf("/") + 1);
-		}
+		
+		ccffext.gc_class.debug_message("pre get license")
 
-		// extract the license code
-		var re_license_code = /http:\/\/creativecommons\.org\/(licenses|publicdomain)\/([a-z\-\+]+)\/.*/
-		license.code = license.uri.match(re_license_code)[2];
-
-		// determine the license "color"
-		switch (license.code) {
-		case "by":
-		case "by-sa":
-		case "mark":
-		case "zero":
-		case "publicdomain":
-		    license.color = "green";
-		    break;
-
-		case "by-nc":
-		case "by-nd":
-		case "by-nc-nd":
-		case "by-nc-sa":
-		case "sampling+":
-		case "nc-sampling+":
-		    license.color = "yellow";
-		    break;
-
-		case "sampling":
-		case "devnations":
-		    license.color = red;
-		    break;
-		}
-	    }
-
-	    // retrieve the license document to introspect for RDFa
+		license.uri = license.name = ccffext.objects.getLicense(doc_uri, object).uri;
+		
+		ccffext.gc_class.debug_message("post get license")
+		
+		// retrieve the license document to introspect for RDFa
 	    if ("undefined" != typeof licenseloader) {
 
 		licenseloader.load_license(
 		    license.uri,
 		    function(url) {
 			// see if we have the license name
+			
+			ccffext.gc_class.debug_message("getting L N 123")
+			
+			ccffext.gc_class.debug_message("url is " + url)
+			
 			license.name = ccffext.objects.getValue(
 			    url, {'uri':url}, 
 			    ["http://purl.org/dc/terms/title",
@@ -585,6 +587,7 @@ var ccffext =
 			    license.name = license.name.trim();
 
 			// call the callback when done
+			
 			callback (doc_uri, object, license, cb_args);
 		    });
 
