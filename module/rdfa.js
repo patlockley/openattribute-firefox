@@ -1688,7 +1688,38 @@ RDFA.add_triple = function(base, subject, predicate, object, literal_p, literal_
 		}
 		
 	//}
-	    
+	
+	var predicates = new Array ("http://www.w3.org/1999/xhtml/vocab#license",
+		      "http://creativecommons.org/ns#license",
+		      "http://purl.org/dc/terms/license",
+			  "http://purl.org/dc/terms/title",
+		 	  "http://purl.org/dc/elements/1.1/title",
+			  "http://purl.org/dc/terms/type",
+		 	  "http://purl.org/dc/elements/1.1/type",
+			  "http://creativecommons.org/ns#attributionName",
+			  "http://creativecommons.org/ns#attributionURL"
+		    );
+			 
+	for(x=0;x<=predicates.length;x++){
+		
+		//RDFA.debug(predicate + " " + predicates[x]);
+		
+		if(predicate.uri==predicates[x]){
+					
+			//for(x in predicate){
+				
+				//RDFA.debug(x + " ====== " + predicate[x].objectIndex);
+				
+			//}
+			
+			//certain_death();
+			
+			//RDFA.debug("Pre triples --- " + subject + " " + predicate + " " + object);
+			
+		}
+		
+	}
+		    
     return RDFA.triplestore.add(subject, predicate, object, 'RDFa');
 };
 
@@ -1831,8 +1862,16 @@ RDFA.traverse = function(element, subject, namespaces, lang, base, hanging){
 	// fetch some attributes so we don't need to refetch multiple times, and so code is cleaner.
 	var attr_names = ['class','about', 'src', 'resource', 'href', 'instanceof', 'typeof', 'rel', 'rev', 'property', 'content', 'datatype'];
 	var attrs = {};
-	for (var i = 0; i < attr_names.length; i++) 
-		attrs[attr_names[i]] = RDFA.getNodeAttributeValue(element, attr_names[i]);
+	for (var i = 0; i < attr_names.length; i++){
+		
+		if (RDFA.getNodeAttributeValue(element, attr_names[i])!=null){
+			
+			attrs[attr_names[i]] = RDFA.getNodeAttributeValue(element, attr_names[i]);
+			
+		}
+		
+	} 		
+	
 	
 	// do we explicitly override it?
 	var explicit_subject = null;

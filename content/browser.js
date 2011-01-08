@@ -62,7 +62,27 @@ this._popup_license_band.setAttribute(
     // Popup Handlers
     handleIconClick : function(e) {
 		
-		ccffext.gc_class = gCcHandler;
+		var statements = ccffext.cache.get(content.document.location.href).statements;
+	    for (let i = 0; i < statements.length; ++i)
+	    {
+			
+		
+			if (statements[i].subject.uri == content.document.location.href){
+
+			alert(statements[i].subject.uri)
+				
+			}
+	    }
+		
+		for(x=0;x<=ccffext.cache.get(content.document.location.href).statements.length;x++){
+			
+			//alert(ccffext.cache.get(content.document.location.href).statements[x])
+			
+		}
+		
+		//kill_js_dead();
+		
+		
 
 		this.resetPopup();
 		
@@ -73,8 +93,6 @@ this._popup_license_band.setAttribute(
 		var license = ccffext.objects.getLicense(content.document.location.href, doc_subject);
 		
 		cc_statement = license.uri.split("/")[4];
-		
-		alert("here i am")
 		
 		switch (cc_statement) {
 		case "by":
@@ -112,15 +130,11 @@ this._popup_license_band.setAttribute(
 		this._popup_license.value = license.uri;
 		this._popup_license.setAttribute('href', license.uri);
 		
-		//
+		//alert(" passed into attro html" + doc_subject.uri)
 		
-		alert("here i am too too")
+		//ccffext.objects.getAttributionHtml(content.document.location.href, doc_subject, gCcHandler);
 		
-		alert(doc_subject + " passed into attro html")
-		
-		ccffext.objects.getAttributionHtml(content.document.location.href, doc_subject, gCcHandler);
-		
-		alert("never")
+		//alert("never")
 		
 		//
 		
@@ -237,15 +251,27 @@ this._icon.hidden = true;
 			gCcHandler.hideIcon();
 		
 		if (document instanceof HTMLDocument) {
-			ccffext.objects.callbackify(
-		document, function(document,objects) { 
-			if (gBrowser.contentDocument == document)
-			gCcHandler.showIcon(document);
-			},function(document) {
-		// license not cached
-		ccffext.objects.parse(document.location.href, document);
-		});
-	}
+			ccffext.objects.callbackify(document, 
+			
+										function(document,objects) { 
+										
+											if (gBrowser.contentDocument == document)
+					
+												gCcHandler.showIcon(document);
+			
+											},
+										
+										function(document) {
+											
+											// license not cached		
+											
+											ccffext.gc_class = gCcHandler;						
+											
+											ccffext.objects.parse(document.location.href, document);
+											
+										}
+								);
+		}
 	
     }
 };
