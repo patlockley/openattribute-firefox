@@ -1,23 +1,26 @@
-/*
-	An icon being displayed in the location bar when licensed objects are present.
+*
+An icon being displayed in the location bar when licensed objects are present.
 
-	The icon is hidden by default. The Creative Commons small icon is shown. Additional space is added to the icon to
-	look distinctively among other icons
+The icon is hidden by default. The Creative Commons small icon is shown. Additional space is added to the icon to
+look distinctively among other icons
 */
 image#ccffext-icon
 {
-	cursor: pointer;
-	list-style-image: url("chrome://ccffext/content/media/cc.small.png");
-	margin: 0 3px 0 3px;
+cursor: pointer;
+list-style-image: url("chrome://ccffext/content/media/cc.small.png");
+margin: 0 3px 0 3px;
 }
 
 image#ccffext-popup-icon {
     list-style-image: url("chrome://ccffext/content/media/cc.png");
 }
 
+#ccffext-popup {
+    width: 350px;
+}
+
 #ccffext-popup-container {
     padding: 10px;
-    min-width: 280px;
 }
 
 #ccffext-popup-license-band {

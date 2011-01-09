@@ -1,13 +1,7 @@
 var gCcHandler = {
-	
-	debug_message : function(str){
-		
-		//alert(str)
-		
-	},
 
     // Smart Getters
-    get _icon () {		
+    get _icon () {
 return document.getElementById('ccffext-icon');
     },
 
@@ -39,12 +33,8 @@ return document.getElementById('ccffext-popup-attrib-html');
 return document.getElementById('ccffext-popup-licensed-objects');
     },
 
-    get _license_frame_browser () {
+    get _license_browser () {
 return document.getElementById('ccffext-license-frame');
-    },
-
-    get _license_frame () {
-return licenseloader;
     },
 
     resetPopup : function() {
@@ -60,160 +50,103 @@ this._popup_license_band.setAttribute(
     },
 
     // Popup Handlers
-    handleIconClick : function(e,clicked) {
-		
-		var statements = ccffext.cache.get(content.document.location.href).statements;	
-		
-		ccffext.gc_class.debug_message(statements)
+    handleIconClick : function(e) {
 
-		this.resetPopup();
-		
-		// update the popup with the license information
-		var doc_subject = {uri:content.document.location.href};
-		
-		// -- license
-		
-		ccffext.gc_class.debug_message("get license ")
-		
-		var license = ccffext.objects.getLicense(content.document.location.href, doc_subject);
-		
-		//ccffext.gc_class.debug_message("past license " + license.uri)
-		
-		//cc_statement = license.uri.split("/")[4];
-		
-		//ccffext.gc_class.debug_message("past split ")
-		
-		ccffext.gc_class.debug_message(license)
-		
-		/*switch (cc_statement) {
-		case "by":
-		case "by-sa":
-		case "mark":
-		case "zero":
-		case "publicdomain":
-		    license.color = "green";
-		    break;
+this.resetPopup();
 
-		case "by-nc":
-		case "by-nd":
-		case "by-nc-nd":
-		case "by-nc-sa":
-		case "sampling+":
-		case "nc-sampling+":
-		    license.color = "yellow";
-		    break;
+// update the popup with the license information
+var doc_subject = {uri:content.document.location.href};
 
-		case "sampling":
-		case "devnations":
-		    license.color = red;
-		    break;
-		}*/
-		
-		ccffext.gc_class.debug_message("set attrib")
-		
-		gCcHandler._popup_license_band.setAttribute("class", "band-" + license.color);
-		
-		ccffext.gc_class.debug_message("band colour set ")
-		
-		var is_doc_licensed = false;
-		
-		if ("undefined" != typeof license) {
-		// document is licensed
-		is_doc_licensed = true;
-		
-		//this._popup_license.hidden = false;
-		this._popup_license.value = license.uri;
-		this._popup_license.setAttribute('href', license.uri);
-		
-		//alert(" passed into attro html" + doc_subject.uri)
-		
-		//ccffext.objects.getAttributionHtml(content.document.location.href, doc_subject, gCcHandler);
-		
-		//alert("never")
-		
-		//
-		
-		ccffext.gc_class.debug_message("get license details?")
-		
-		// ---- get the license details and update the popup when ready
-		ccffext.objects.getLicenseDetails(
-		content.document.location.href, doc_subject,
-		function(document, object, license) {
-			
-			gCcHandler._popup_license.value = license.name;
-		
-		
-			// -- show the copy and paste HTML
-			// -- this is handled in the callback so we are certain
-			// -- the license document has been dereferenced and
-			// -- parsed
-			
-			gCcHandler._popup_attrib_html.value = ccffext.objects.getAttributionHtml(content.document.location.href, doc_subject, gCcHandler);
-			gCcHandler._popup_attrib_html.hidden = false;
-		
-		},
-		licenseloader, []);
-		
-		// -- title
-		this._popup_work_title.hidden = false;
-		this._popup_work_title.value = ccffext.objects.getDisplayTitle(
-		content.document.location.href, doc_subject);
-		
-		// -- attribution link
-		let author = ccffext.objects.getAuthor(
-		content.document.location.href, doc_subject);
-		let author_uri = ccffext.objects.getAuthorUri(
-		content.document.location.href, doc_subject);
-		
-		if ("undefined" != typeof author ||
-		"undefined" != typeof author_uri) {
-		
-		// at least one has been provided
-		this._popup_attribution.hidden = false;
-		
-		if ("undefined" == typeof author &&
-		"undefined" != typeof author_uri)
-		author = author_uri;
-		
-		if ("undefined" != typeof author) {
-		// attribution name was supplied
-		this._popup_attribution.value = author;
-		}
-		
-		if ("undefined" != typeof author_uri) {
-		this._popup_attribution.setAttribute('href',
-		author_uri.uri);
-		this._popup_attribution.setAttribute(
-		"class", "identity-popup-label text-link");
-		} else {
-		// no attribution URL
-		this._popup_attribution.setAttribute(
-		"class", "identity-popup-label");
-		}
-		}
+// -- license
+var license = ccffext.objects.getLicense(
+content.document.location.href, doc_subject);
+var is_doc_licensed = false;
 
-	} // if license is not undefined
-	
-	// how many licensed objects described by this page, excluding the page
-	var count = ccffext.objects.getLicensedSubjects(content.document.location.href).length - (is_doc_licensed?1:0);
-	
-	if (count > 0) {
-		this._popup_num_licensed_objects.value = ccffext.l10n.get("icon.title.label", count);
-		this._popup_num_licensed_objects.hidden = false;
-	}
-	
-	// show the popup
+if ("undefined" != typeof license) {
+// document is licensed
+is_doc_licensed = true;
 
-	if(clicked){
+this._popup_license.hidden = false;
+this._popup_license.value = license.uri;
+this._popup_license.setAttribute('href', license.uri);
 
-		this._popup.hidden = false;
+// ---- get the license details and update the popup when ready
+licenses.getLicenseInfo(
+ccffext.objects.getLicense(content.document.location.href,
+doc_subject).uri,
+function(license) {
+gCcHandler._popup_license.value = license.name;
+gCcHandler._popup_license_band.setAttribute(
+"class", "band-" + license.color);
 
-		var position = (getComputedStyle(gNavToolbox, "").direction == "rtl") ? 'after_end' : 'after_start';
+// -- show the copy and paste HTML
+// -- this is handled in the callback so we are certain
+// -- the license document has been dereferenced and
+// -- parsed
+gCcHandler._popup_attrib_html.value =
+ccffext.objects.getAttributionHtml(
+content.document.location.href, doc_subject);
+gCcHandler._popup_attrib_html.hidden = false;
+}, []);
 
-		this._popup.openPopup(this._icon, position);	
-	
-	}
+// -- title
+this._popup_work_title.hidden = false;
+this._popup_work_title.value = ccffext.objects.getDisplayTitle(
+content.document.location.href, doc_subject);
 
+// -- attribution link
+let author = ccffext.objects.getAuthor(
+content.document.location.href, doc_subject);
+let author_uri = ccffext.objects.getAuthorUri(
+content.document.location.href, doc_subject);
+
+if ("undefined" != typeof author ||
+"undefined" != typeof author_uri) {
+
+// at least one has been provided
+this._popup_attribution.hidden = false;
+
+if ("undefined" == typeof author &&
+"undefined" != typeof author_uri)
+author = author_uri;
+
+if ("undefined" != typeof author) {
+// attribution name was supplied
+this._popup_attribution.value = author;
+}
+
+if ("undefined" != typeof author_uri) {
+this._popup_attribution.setAttribute('href',
+author_uri.uri);
+this._popup_attribution.setAttribute(
+"class", "text-link");
+} else {
+// no attribution URL
+this._popup_attribution.setAttribute(
+"class", "");
+}
+}
+
+} // if license is not undefined
+
+// how many licensed objects described by this page, excluding the page
+var count = ccffext.objects.getLicensedSubjects(
+content.document.location.href).length - (is_doc_licensed?1:0);
+if (count > 0) {
+this._popup_num_licensed_objects.value =
+ccffext.l10n.get("icon.title.label", count);
+this._popup_num_licensed_objects.hidden = false;
+}
+
+// show the popup
+
+alert("here i am")
+
+this._popup.hidden = false;
+
+var position = (getComputedStyle(gNavToolbox, "").direction == "rtl") ? 'after_end' : 'after_start';
+
+this._popup.openPopup(this._icon, position);
     },
 
     handleMoreInfo : function(e) {
@@ -231,50 +164,38 @@ this._icon.hidden = true;
     },
     
     showIcon : function(document) {
-		
-		const objects = ccffext.objects.getLicensedSubjects(document.location.href);
+const objects = ccffext.objects.getLicensedSubjects(
+document.location.href);
 
-		this._icon.hidden = false;
-		gCcHandler._icon.setAttribute("tooltiptext",ccffext.l10n.get("icon.title.label",objects.length));
-		
+this._icon.hidden = false;
+gCcHandler._icon.setAttribute("tooltiptext",
+ccffext.l10n.get("icon.title.label",
+objects.length));
     },
 
     showIconIfLicenseInfo : function(document) {
-		
-		// if no document is provided, default to the active document
-		if ("undefined" == typeof document) {
-			document = gBrowser.contentDocument;
-		}
-		
-		// if this is the active document, hide the icon
-		if (gBrowser.contentDocument == document)
-			gCcHandler.hideIcon();
-		
-		if (document instanceof HTMLDocument) {
-			ccffext.objects.callbackify(document, 
-			
-										function(document,objects) { 
-										
-											if (gBrowser.contentDocument == document)
-					
-												gCcHandler.showIcon(document);
-			
-											},
-										
-										function(document) {
-											
-											// license not cached		
-											
-											ccffext.gc_class = gCcHandler;	
-										
-											ccffext.objects.parse(document.location.href, document);
-											
-											gCcHandler.handleIconClicked(event,false);
-											
-										}
-								);
-		}
-	
+
+// if no document is provided, default to the active document
+if ("undefined" == typeof document) {
+document = gBrowser.contentDocument;
+}
+
+// if this is the active document, hide the icon
+if (gBrowser.contentDocument == document)
+gCcHandler.hideIcon();
+
+if (document instanceof HTMLDocument) {
+ccffext.objects.callbackify(
+document,
+function(document,objects) {
+if (gBrowser.contentDocument == document)
+gCcHandler.showIcon(document);
+},
+function(document) {
+// license not cached
+ccffext.objects.parse(document.location.href, document);
+});
+}
     }
 };
 
@@ -296,7 +217,10 @@ onLocationChange : function(browser, progress,request,uri) {
 
 // A tab is opened, closed, or switched to
 // Show the location bar icon if license information is present
-gCcHandler.showIconIfLicenseInfo(progress.DOMWindow.document);
+
+// XXX disabling; this is called before the browser fully
+// -- loads the document, causing errors in the parse process
+// gCcHandler.showIconIfLicenseInfo(progress.DOMWindow.document);
 
 },
 
@@ -313,6 +237,6 @@ gCcHandler.showIconIfLicenseInfo(progress.DOMWindow.document);
 
     });
 
-    licenseloader.init(gCcHandler._license_frame_browser);
+    licenses.init(gCcHandler._license_browser);
 
 },false);
