@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+
+<!-- Load style definitions -->
+<?xml-stylesheet type="text/css" href="chrome://ccffext/skin/browser.css"?>
+
+<!-- Setup UI augmentations -->
+<overlay id="ccffext_browser"
+	 xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <!-- Bootstrap scripts -->
+  <script type="text/javascript" 
+	  src="resource://ccffext/bootstrap.js"></script>
+
+  <!-- Control the main browser window behavior -->
+  <script type="text/javascript"
+	  src="chrome://ccffext/content/browser.js"></script>
+
+  <!-- CC urlbar icon -->
+  <hbox id="urlbar-icons">
+    <image id="ccffext-icon" hidden="true"
+	   onclick="gCcHandler.handleIconClick(event,true)" />
+  </hbox>
+  
+  <!-- CC License popup -->
+  <popupset id="mainPopupSet">
+    <!-- Popup for site license information -->
+    <panel id="ccffext-popup" position="after_start" 
+	   hidden="true" noautofocus="true"
+	   onpopupshown="document.getElementById('ccffext-popup-more-info-button').focus();"
+	   level="top">
+      <hbox id="ccffext-popup-container" align="top" flex="1">
+        <image id="ccffext-popup-icon"/>
+        <vbox id="ccffexet-popup-content-box" flex="1">
+	  <label id="ccffext-popup-work-title"
+                 value="" />
+	  <label id="ccffext-popup-attribution-link"
+                 value=""
+		 href="" />
+	  <label id="ccffext-popup-license-link"
+                 class="text-link"
+                 value="" 
+		 href="" />
+	  <textbox id="ccffext-popup-attrib-html"
+		   onfocus="this.select()"></textbox>
+	  <label id="ccffext-popup-licensed-objects"
+		 value="" />
+	</vbox>
+      </hbox>
+      <hbox pack="end">
+        <button id="ccffext-popup-more-info-button"
+                label="More Information..."
+                oncommand="gCcHandler.handleMoreInfo(event);"/>
+      </hbox>
+      <box id="ccffext-popup-license-band" flex="1" />
+      <browser id="ccffext-license-frame" name="ccffext-license-frame"
+	       type="content" height="0" width="0" />
+      
+    </panel>
+  </popupset>
+
+</overlay>
