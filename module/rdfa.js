@@ -266,6 +266,9 @@ function RDFLiteral(value, lang, datatype){
     this.datatype = datatype; // term
     this.toString = RDFLiteralToString
     this.toNT = RDFLiteral_toNT
+	
+	RDFA.debug("Making literal " + value + " " + lang)
+	
     return this
 }
 
@@ -337,6 +340,9 @@ function RDFStatement_toNT(){
 }
 
 function RDFStatement(subject, predicate, object, why){
+	
+	//RDFA.debug("RDFA statement " + subject + " " + predicate + " " + object)
+	
     this.subject = makeTerm(subject)
     this.predicate = makeTerm(predicate)
     this.object = makeTerm(object)
@@ -966,7 +972,7 @@ function RDFMakeTerm(formula, val){
 // add a triple to the store
 RDFIndexedFormula.prototype.add = function(subj, pred, obj, why){
 	
-	//alert("add " + subj + " - " + pred + " - " + obj + " - " + why)
+	RDFA.debug("add function called " + subj + " " + pred + " " + obj + " " + why)
 	
 	var action, st, hashS, hashP, hashO;
 	
@@ -983,7 +989,6 @@ RDFIndexedFormula.prototype.add = function(subj, pred, obj, why){
 	obj = RDFMakeTerm(this, obj);
 	why = RDFMakeTerm(this, why);
 	
-	
 	// Look for strange bug that this is called with no object very occasionally
 	// and only when running script in file: space
 	if (typeof obj == 'undefined') {
@@ -993,8 +998,6 @@ RDFIndexedFormula.prototype.add = function(subj, pred, obj, why){
 		', pred=' +
 		pred)
 	}
-	
-	
 	
 	var hashS = subj.hashString();
 	var hashP = pred.hashString();
@@ -1024,9 +1027,13 @@ RDFIndexedFormula.prototype.add = function(subj, pred, obj, why){
     if (typeof this.objectIndex[hashO] == 'undefined') 
         this.objectIndex[hashO] = [];
     this.objectIndex[hashO].push(st); // Set of things with this as object
-    var newIndex = this.statements.push(st);
+    
+	RDFA.debug(this.statements)
+    
+	var newIndex = this.statements.push(st);
 	
     return this.statements[newIndex-1];
+	
 }; 
 
 
@@ -1179,6 +1186,7 @@ RDFIndexedFormula.prototype.removeMany = function(subj, pred, obj, why, limit){
 /** Load a resorce into the store **/
 
 RDFIndexedFormula.prototype.load = function(url){
+	
     // get the XML
     var xhr = Util.XMLHTTPFactory(); // returns a new XMLHttpRequest, or ActiveX XMLHTTP object
     if (xhr.overrideMimeType) {
@@ -1623,28 +1631,6 @@ XH.transform = function(element){
 	//}
 };
 
-//RDFA = document.RDFA;
-
-//XH.transform(document.getElementsByTagName('body')[0]);
-//XH.transform(document.getElementsByTagName('head')[0]);
-
-//RDFA.GRDDL.DONE_LOADING(document.__RDFA_BASE + 'xhtml1-hgrddl.js');
-
-
-
-
-
-
-
-
-
-
-
-
-//
-//
-//
-
 RDFA.add_triple = function(base, subject, predicate, object, literal_p, literal_datatype, literal_lang){
 	
 	//alert("add triple " + base + " - " + subject + " - " + predicate + " - " + object + " - " + literal_p + " - " + literal_datatype + " - " + literal_lang)
@@ -1662,71 +1648,49 @@ RDFA.add_triple = function(base, subject, predicate, object, literal_p, literal_
         return null;
     }
 	
-	var subject_set = false;
-	var object_set = false;
-	
-	//if (base.indexOf("flickr.com") == -1) {
-	
-		// if subject is string, then create a URI
-		if (typeof(subject) == 'string') {
+	if (typeof(subject) == 'string') {
 		
-			subject = new RDFSymbol(Util.uri.join(subject, base));
+		subject = new RDFSymbol(Util.uri.join(subject, base));
 			
-		}
-		
-		if (literal_p) {
-			object = new RDFLiteral(object, literal_lang, literal_datatype);
-		}
-		else {
-			if (typeof(object) == 'string') {
-			
-				object = new RDFSymbol(Util.uri.join(object, base));
-				
-			}
-			
-			
-		}
-		
-	//}
-	
-	var predicates = new Array ("http://www.w3.org/1999/xhtml/vocab#license",
-		      "http://creativecommons.org/ns#license",
-		      "http://purl.org/dc/terms/license",
-			  "http://purl.org/dc/terms/title",
-		 	  "http://purl.org/dc/elements/1.1/title",
-			  "http://purl.org/dc/terms/type",
-		 	  "http://purl.org/dc/elements/1.1/type",
-			  "http://creativecommons.org/ns#attributionName",
-			  "http://creativecommons.org/ns#attributionURL"
-		    );
-			 
-	for(x=0;x<=predicates.length;x++){
-		
-		//RDFA.debug(predicate + " " + predicates[x]);
-		
-		if(predicate.uri==predicates[x]){
-					
-			//for(x in predicate){
-				
-				//RDFA.debug(x + " ====== " + predicate[x].objectIndex);
-				
-			//}
-			
-			//certain_death();
-			
-			//RDFA.debug("Pre triples --- " + subject + " " + predicate + " " + object);
-			
-		}
-		
 	}
-		    
-    return RDFA.triplestore.add(subject, predicate, object, 'RDFa');
+		
+	if (literal_p) {
+		
+		RDFA.debug("literal_p " + object + " " + literal_lang + " " + literal_datatype)
+		
+		object = new RDFLiteral(object, literal_lang, literal_datatype);
+		
+	}else {
+		
+		if (typeof(object) == 'string') {
+			
+			if(object.indexOf('license')==-1){
+			
+				object = new RDFSymbol(Util.uri.join(object, base));	
+				
+			}else{
+				
+				RDFA.debug(" object with CC license details " + object)
+				
+				object = new RDFLiteral(object, null, undefined);
+				
+			}			
+				
+		}
+			
+	}
+	
+	//RDFA.debug("adding triple " + subject + " " + predicate + " " + object)
+		 
+	return RDFA.triplestore.add(subject, predicate, object, 'RDFa');	    
+    
 };
 
 //
 // Process Namespaces
 //
 RDFA.add_namespaces = function(element, namespaces){
+	
     if (!namespaces) 
         namespaces = {};
     
@@ -1741,6 +1705,7 @@ RDFA.add_namespaces = function(element, namespaces){
     }
     
     for (var i = 0; i < attributes.length; i++) {
+		
         if (attributes[i].name.substring(0, 5) == "xmlns") {
             if (!copied_yet) {
                 namespaces = RDFA.object_copy(namespaces);
@@ -1752,8 +1717,7 @@ RDFA.add_namespaces = function(element, namespaces){
             }
             
             var prefix = attributes[i].name.substring(6);
-            var uri = attributes[i].value;
-            
+            var uri = attributes[i].value;			
             namespaces[prefix] = new Namespace(uri);
         }
     }
@@ -1990,9 +1954,52 @@ RDFA.traverse = function(element, subject, namespaces, lang, base, hanging){
     // REL attribute
     RDFA.each_prefixed_attr_value(attrs['rel'], function(rel_value){
     
-        if (explicit_object != null) {
-            var triple = RDFA.add_triple(base, subject, RDFA.CURIE.parse(rel_value, namespaces), explicit_object, false);
-            RDFA.CALLBACK_NEW_TRIPLE_WITH_URI_OBJECT(element_to_callback, triple);
+        if (explicit_object != null) {	
+		
+			if (attrs['rel']=="xh:license license") {
+			
+				var property = RDFA.CURIE.parse("cc:license", namespaces);
+				
+				for(x in namespaces){
+					
+					RDFA.debug(x)
+					
+				}
+				
+				RDFA.debug(namespaces)	
+								
+				//RDFA.debug(base + " " + subject + " " + property + " " + content)
+			
+				/*if(base.toString().indexOf("creativecommons")==-1){
+				
+					if (property.toString().indexOf("creativecommons") == -1) {
+					
+						RDFA.debug("set page title as " + content)
+						
+					}
+					
+					if (property.toString().indexOf("creativecommons") != -1) {
+					
+						RDFA.debug("set page author as " + content)
+					
+					}	
+					
+				}else{
+					
+					RDFA.debug("set page license as " + content)
+					
+				}*/					
+								
+           		//var triple = RDFA.add_triple(base, subject, property, content, true, datatype, lang);
+				//RDFA.CALLBACK_NEW_TRIPLE_WITH_LITERAL_OBJECT(element_to_callback, triple);
+				
+			} else {
+			
+				var triple = RDFA.add_triple(base, subject, RDFA.CURIE.parse(rel_value, namespaces), explicit_object, false);
+				RDFA.CALLBACK_NEW_TRIPLE_WITH_URI_OBJECT(element_to_callback, triple);
+				
+			}
+			
         }
         else {
             // we hang
@@ -2002,7 +2009,7 @@ RDFA.traverse = function(element, subject, namespaces, lang, base, hanging){
     
     // REV attribute
     RDFA.each_prefixed_attr_value(attrs['rev'], function(rev_value){
-        if (explicit_object != null) {
+        if (explicit_object != null) {						
             var triple = RDFA.add_triple(base, explicit_object, RDFA.CURIE.parse(rev_value, namespaces), subject, false);
             RDFA.CALLBACK_NEW_TRIPLE_WITH_URI_OBJECT(element_to_callback, triple);
         }
@@ -2041,11 +2048,11 @@ RDFA.traverse = function(element, subject, namespaces, lang, base, hanging){
         }
         
         // go through each prop
-        RDFA.each_prefixed_attr_value(attrs['property'], function(prop_value){
-			
-            var property = RDFA.CURIE.parse(prop_value, namespaces);						
+        RDFA.each_prefixed_attr_value(attrs['property'], function(prop_value){	
+								
             var triple = RDFA.add_triple(base, subject, property, content, true, datatype, lang);
             RDFA.CALLBACK_NEW_TRIPLE_WITH_LITERAL_OBJECT(element_to_callback, triple);
+			
         });
     }
 	
@@ -2087,16 +2094,16 @@ RDFA.traverse = function(element, subject, namespaces, lang, base, hanging){
 			RDFA.associateElementAndSubject(element, explicit_object, namespaces);
         	subject = explicit_object;			
 			
-		}
-		
-		
+		}		
 		
     }
     
     // recurse down the children
     var children = element.childNodes;
     for (var i = 0; i < children.length; i++) {
+		
         RDFA.traverse(children[i], subject, namespaces, lang, base, hanging);
+		
     }
 };
 
@@ -2125,6 +2132,8 @@ RDFA.parse = function(parse_document, base){
     // set up default namespace
     namespaces[''] = default_ns;
     namespaces['rdf'] = new Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#');
+	namespaces['cc'] = new Namespace('http://creativecommons.org/ns#');
+	namespaces['dc'] = new Namespace('http://purl.org/dc/terms/');
     
     // hGRDDL for XHTML1 special needs
     //    RDFA.GRDDL.addProfile(__RDFA_BASE + 'xhtml1-hgrddl.js');
@@ -2133,6 +2142,7 @@ RDFA.parse = function(parse_document, base){
     RDFA.GRDDL.runProfiles(parse_document, function(){
         //         2008-01-18 JT
         //         the <base> provides the initial subject if it's given
+		
         RDFA.traverse(parse_document, RDFA.BASE, namespaces, null, RDFA.BASE, null);
         //
         RDFA.CALLBACK_DONE_PARSING();

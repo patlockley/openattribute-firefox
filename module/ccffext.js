@@ -177,6 +177,7 @@ var ccffext =
 	    var pairs = [];
 	    
 	    let statements = ccffext.cache.get(doc_uri).statements;
+		
 	    for (let i = 0; i < statements.length; ++i)
 	    {
 		
@@ -184,9 +185,9 @@ var ccffext =
 			
 				pairs.push([statements[i].predicate,statements[i].object]);
 
-				ccffext.gc_class.debug_message("pre pairs");
+				//ccffext.gc_class.debug_message("pre pairs");
 
-				ccffext.gc_class.debug_message("pair is " + [statements[i].predicate,statements[i].object])
+				//ccffext.gc_class.debug_message("pair is " + [statements[i].predicate,statements[i].object])
 				
 			}
 	    }
@@ -206,8 +207,6 @@ var ccffext =
 	getValue : function(doc_uri, subject, predicates) {
 
 	    for each (let p in predicates) {
-			
-			ccffext.gc_class.debug_message("P is " + p)
 			
 			for (let i = 0, 
 		     	pairs = ccffext.objects.getPredObjPairs(doc_uri,subject); 
@@ -229,6 +228,8 @@ var ccffext =
 	 * @param location A string containing the URL of the document.
 	 * @param document The document to be parsed
 	 */
+	
+	
 	parse : function(location, document)
 	{
 	    XH.transform(document.getElementsByTagName("body")[0]);
@@ -241,8 +242,9 @@ var ccffext =
 		}
 		
 	    RDFA.reset();
-	    RDFA.parse(document);
-	    
+		
+	    RDFA.parse(document);		
+		
 	    ccffext.cache.put(location,RDFA.triplestore);
 	},
 	
@@ -515,8 +517,6 @@ var ccffext =
 
 	// Return the license for the specified object
 	getLicense : function(doc_uri, object) {
-		
-		ccffext.gc_class.debug_message("getting licese with " + ccffext.objects.predicates)
 
 	    return ccffext.objects.getValue(
 		doc_uri, object, ccffext.objects.predicates);
@@ -555,10 +555,6 @@ var ccffext =
 		    license.uri,
 		    function(url) {
 			// see if we have the license name
-			
-			ccffext.gc_class.debug_message("getting L N 123")
-			
-			ccffext.gc_class.debug_message("url is " + url)
 			
 			license.name = ccffext.objects.getValue(
 			    url, {'uri':url}, 
@@ -614,3 +610,5 @@ var ccffext =
 	    .logStringMessage(message);
     }
 };
+
+var parsecount = 0;

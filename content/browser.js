@@ -2,7 +2,7 @@ var gCcHandler = {
 	
 	debug_message : function(str){
 		
-		alert(str)
+		//alert(str)
 		
 	},
 
@@ -60,29 +60,11 @@ this._popup_license_band.setAttribute(
     },
 
     // Popup Handlers
-    handleIconClick : function(e) {
+    handleIconClick : function(e,clicked) {
 		
-		var statements = ccffext.cache.get(content.document.location.href).statements;
-	    for (let i = 0; i < statements.length; ++i)
-	    {
-			
+		var statements = ccffext.cache.get(content.document.location.href).statements;	
 		
-			if (statements[i].subject.uri == content.document.location.href){
-
-			alert(statements[i].subject.uri)
-				
-			}
-	    }
-		
-		for(x=0;x<=ccffext.cache.get(content.document.location.href).statements.length;x++){
-			
-			//alert(ccffext.cache.get(content.document.location.href).statements[x])
-			
-		}
-		
-		//kill_js_dead();
-		
-		
+		ccffext.gc_class.debug_message(statements)
 
 		this.resetPopup();
 		
@@ -90,11 +72,20 @@ this._popup_license_band.setAttribute(
 		var doc_subject = {uri:content.document.location.href};
 		
 		// -- license
+		
+		ccffext.gc_class.debug_message("get license ")
+		
 		var license = ccffext.objects.getLicense(content.document.location.href, doc_subject);
 		
-		cc_statement = license.uri.split("/")[4];
+		//ccffext.gc_class.debug_message("past license " + license.uri)
 		
-		switch (cc_statement) {
+		//cc_statement = license.uri.split("/")[4];
+		
+		//ccffext.gc_class.debug_message("past split ")
+		
+		ccffext.gc_class.debug_message(license)
+		
+		/*switch (cc_statement) {
 		case "by":
 		case "by-sa":
 		case "mark":
@@ -116,9 +107,13 @@ this._popup_license_band.setAttribute(
 		case "devnations":
 		    license.color = red;
 		    break;
-		}
+		}*/
+		
+		ccffext.gc_class.debug_message("set attrib")
 		
 		gCcHandler._popup_license_band.setAttribute("class", "band-" + license.color);
+		
+		ccffext.gc_class.debug_message("band colour set ")
 		
 		var is_doc_licensed = false;
 		
@@ -137,6 +132,8 @@ this._popup_license_band.setAttribute(
 		//alert("never")
 		
 		//
+		
+		ccffext.gc_class.debug_message("get license details?")
 		
 		// ---- get the license details and update the popup when ready
 		ccffext.objects.getLicenseDetails(
@@ -207,12 +204,15 @@ this._popup_license_band.setAttribute(
 	
 	// show the popup
 
+	if(clicked){
 
-	this._popup.hidden = false;
+		this._popup.hidden = false;
 
-	var position = (getComputedStyle(gNavToolbox, "").direction == "rtl") ? 'after_end' : 'after_start';
+		var position = (getComputedStyle(gNavToolbox, "").direction == "rtl") ? 'after_end' : 'after_start';
 
-	this._popup.openPopup(this._icon, position);	
+		this._popup.openPopup(this._icon, position);	
+	
+	}
 
     },
 
@@ -265,9 +265,11 @@ this._icon.hidden = true;
 											
 											// license not cached		
 											
-											ccffext.gc_class = gCcHandler;						
-											
+											ccffext.gc_class = gCcHandler;	
+										
 											ccffext.objects.parse(document.location.href, document);
+											
+											gCcHandler.handleIconClicked(event,false);
 											
 										}
 								);
