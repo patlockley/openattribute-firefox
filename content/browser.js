@@ -97,6 +97,7 @@ var gCcHandler = {
 	    // -- attribution link
 	    let author = ccffext.objects.getAuthor(
 		content.document.location.href, doc_subject);
+		
 	    let author_uri = ccffext.objects.getAuthorUri(
 		content.document.location.href, doc_subject);
 	    
@@ -233,6 +234,14 @@ window.addEventListener("load",function() {
 	},
 	
     });
+	
+	gCcHandler.message_box=function(text){
+		
+		alert(text)	
+		
+	}
+	
+	ccffext.gc_class = gCcHandler;
 
     licenses.init(gCcHandler._license_browser);
 

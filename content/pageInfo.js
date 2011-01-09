@@ -155,7 +155,11 @@
 		    authorValue.setAttribute("value",author);
 		    authorLine.appendChild(authorValue);
 		    
-		    if ("undefined" != authorUri)
+			//
+			// This fixes a bug when the author URI is actually undefined (Flickr Pages)
+			//
+			
+		    if (undefined != authorUri)
 		    {
 			authorValue.setAttribute("class","anchor");
 			authorValue.setAttribute("uri",authorUri.uri);
@@ -227,6 +231,58 @@
 		},true);
 		
 		attribContainer.appendChild(attribCopyButton);
+		
+		const nonRDFAattribLine = document.createElement("vbox");
+		nonRDFAattribLine.setAttribute("class","line primary");
+		leftPanel.appendChild(nonRDFAattribLine);
+
+		const nonRDFAattribTitle = document.createElement("label");
+		nonRDFAattribTitle.setAttribute("class","line-title");
+		nonRDFAattribTitle.setAttribute("value",
+					 ccffext.l10n.get("object.attribution.labelplain"));
+		attribLine.appendChild(nonRDFAattribTitle);
+		
+		const nonRDFAattribContainer = document.createElement("hbox");
+		nonRDFAattribContainer.setAttribute("class", "indented");
+		nonRDFAattribLine.appendChild(nonRDFAattribContainer);
+		
+		var nonRDFAattribText = document.createElement("textbox");
+		nonRDFAattribText.setAttribute("flex","1");
+		nonRDFAattribText.setAttribute("multiline", "true");
+		
+		string = "Title : \"" + title.getAttribute("value"); 
+		if (undefined != author) {
+		
+			string += "\" by " + author + "\n";
+		
+		}else{
+		
+			string += "\"\n";
+			
+		}
+		string += "URL : " + doc.location.href + "\n";
+		string += "License : " + licenseValue.getAttribute("uri") + " " + licenseValue.getAttribute("value");
+		
+		nonRDFAattribText.setAttribute("value",string);
+		nonRDFAattribText.addEventListener("focus", function(e) {
+		    nonRDFAattribText.select();
+		}, true);
+		nonRDFAattribContainer.appendChild(nonRDFAattribText);
+
+		const nonRDFAattribCopyButton = document.createElement("button");
+		nonRDFAattribCopyButton.setAttribute("label",
+					      ccffext.l10n.get("copy"));
+		nonRDFAattribCopyButton.setAttribute("accesskey",
+					      ccffext.l10n.get("object.button.attributionashtml.key"));
+		nonRDFAattribCopyButton.addEventListener("click",function() {
+		    const clipboard = Components.classes["@mozilla.org/widget/clipboardhelper;1"].
+			getService(Components.interfaces.nsIClipboardHelper);
+		    clipboard.copyString(nonRDFAattribText.getAttribute("value"));
+		},true);
+		
+		nonRDFAattribContainer.appendChild(nonRDFAattribCopyButton);
+		
+		
 	    }
 	    
 	    // Eventually switch to the tab

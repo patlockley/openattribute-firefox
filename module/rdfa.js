@@ -1,54 +1,54 @@
 var EXPORTED_SYMBOLS = ["RDFA","XH"];
 
 /**
-* RDFA in Javascript
-* Ben Adida - ben@adida.net
-* Nathan Yergler - nathan@creativecommons.org
-* Jeni Tennison - jeni@jenitennison.com
-*
-* W3C Open Source License
-*
-* includes the AJAR (Tabulator) stuff
-*/
+ *  RDFA in Javascript
+ *  Ben Adida - ben@adida.net
+ *  Nathan Yergler - nathan@creativecommons.org
+ *  Jeni Tennison - jeni@jenitennison.com
+ *
+ *  W3C Open Source License
+ * 
+ * includes the AJAR (Tabulator) stuff
+ */
 //
 //
 //
 
-// Implementing URI-specific functions
+//  Implementing URI-specific functions
 //
-// See RFC 2386
+//  See RFC 2386
 //
-// This is or was http://www.w3.org/2005/10/ajaw/uri.js
+// This is or was   http://www.w3.org/2005/10/ajaw/uri.js
 // 2005 W3C open source licence
 //
 //
-// Take a URI given in relative or absolute form and a base
-// URI, and return an absolute URI
+//  Take a URI given in relative or absolute form and a base
+//  URI, and return an absolute URI
 //
-// See also http://www.w3.org/2000/10/swap/uripath.py
+//  See also http://www.w3.org/2000/10/swap/uripath.py
 //
 
 if (typeof Util == "undefined") { var Util = {}}
 if (typeof Util.uri == "undefined") { Util.uri = {}}
 
 Util.uri.join = function (given, base) {
-    // if (typeof tabulator.log.debug != 'undefined') tabulator.log.debug(" URI given="+given+" base="+base)
+    // if (typeof tabulator.log.debug != 'undefined') tabulator.log.debug("   URI given="+given+" base="+base)
     var baseHash = base.indexOf('#');
     if (baseHash > 0) base = base.slice(0, baseHash);
     if (given.length==0) return base // before chopping its filename off
     if (given.indexOf('#')==0) return base + given;
     var colon = given.indexOf(':');
-    if (colon >= 0) return given // Absolute URI form overrides base URI
+    if (colon >= 0) return given    // Absolute URI form overrides base URI
     var baseColon = base.indexOf(':');
     if (base == "") return given;
     if (baseColon < 0) {
         alert("Invalid base: "+ base + ' in join with ' +given);
         return given;
     }
-    var baseScheme = base.slice(0,baseColon+1) // eg http:
-    if (given.indexOf("//") == 0) // Starts with //
+    var baseScheme = base.slice(0,baseColon+1)  // eg http:
+    if (given.indexOf("//") == 0)     // Starts with //
     return baseScheme + given;
-    if (base.indexOf('//', baseColon)==baseColon+1) { // Any hostpart?
+    if (base.indexOf('//', baseColon)==baseColon+1) {  // Any hostpart?
         var baseSingle = base.indexOf("/", baseColon+3)
     if (baseSingle < 0) {
         if (base.length-baseColon-3 > 0) {
@@ -68,7 +68,7 @@ Util.uri.join = function (given, base) {
     }
     }
 
-    if (given.indexOf('/') == 0) // starts with / but not //
+    if (given.indexOf('/') == 0)    // starts with / but not //
     return base.slice(0, baseSingle) + given
     
     var path = base.slice(baseSingle)
@@ -81,10 +81,11 @@ Util.uri.join = function (given, base) {
     while (path.match(/[^\/]*\/\.\.\//)) // must apply to result of prev
     path = path.replace( /[^\/]*\/\.\.\//, '') // ECMAscript spec 7.8.5
     path = path.replace( /\.\//g, '') // spec vague on escaping
+	
     return base.slice(0, baseSingle) + path
 }
 
-// refTo: Make a URI relative to a given base
+//  refTo:    Make a URI relative to a given base
 //
 // based on code in http://www.w3.org/2000/10/swap/uripath.py
 //
@@ -99,7 +100,7 @@ Util.uri.refTo = function(base, uri) {
     if (base.slice(0,i).match(Util.uri.commonHost)) {
         var k = uri.indexOf('//');
         if (k<0) k=-2; // no host
-        var l = uri.indexOf('/', k+2); // First *single* slash
+        var l = uri.indexOf('/', k+2);   // First *single* slash
         if (uri.slice(l+1, l+2) != '/' && base.slice(l+1, l+2) != '/'
                            && uri.slice(0,l) == base.slice(0,l)) // common path to single slash
             return uri.slice(l); // but no other common path segments
@@ -127,7 +128,7 @@ Util.uri.docpart = function (uri) {
     var i = uri.indexOf("#")
     if (i < 0) return uri
     return uri.slice(0,i)
-}
+} 
 
 /** return the protocol of a uri **/
 Util.uri.protocol = function (uri) {
@@ -147,27 +148,27 @@ var uri_protocol = Util.uri.protocol
 // Designed to look like rdflib and cwm designs.
 //
 // Issues: Should the names start with RDF to make them
-// unique as program-wide symbols?
+//      unique as program-wide symbols?
 //
 // W3C open source licence 2005.
 //
 
-var RDFTracking = 0 // Are we requiring reasons for statements?
+var RDFTracking = 0  // Are we requiring reasons for statements?
 
 //takes in an object and makes it an object if it's a literal
 function makeTerm(val) {
-    // tabulator.log.debug("Making term from " + val)
+    //  tabulator.log.debug("Making term from " + val)
     if (typeof val == 'object') return val;
     if (typeof val == 'string') return new RDFLiteral(val);
     if (typeof val == 'number') return new RDFLiteral(val); // @@ differet types
-    if (typeof val == 'boolean') return new RDFLiteral(val?"1":"0", undefined,
+    if (typeof val == 'boolean') return new RDFLiteral(val?"1":"0", undefined, 
                                                 RDFSymbol.prototype.XSDboolean);
     if (typeof val == 'undefined') return undefined;
     alert("Can't make term from " + val + " of type " + typeof val);
 }
 
 
-// Symbol
+//  Symbol
 
 function RDFEmpty() {
     return this;
@@ -193,15 +194,15 @@ RDFSymbol.prototype.termType = 'symbol'
 RDFSymbol.prototype.toString = toNT
 RDFSymbol.prototype.toNT = toNT
 
-// Some precalculaued symbols
+//  Some precalculaued symbols
 
 RDFSymbol.prototype.XSDboolean = new RDFSymbol('http://www.w3.org/2001/XMLSchema#boolean');
 RDFSymbol.prototype.integer = new RDFSymbol('http://www.w3.org/2001/XMLSchema#integer');
 
 
-// Blank Node
+//  Blank Node
 
-var RDFNextId = 0; // Gobal genid
+var RDFNextId = 0;  // Gobal genid
 var RDFGenidPrefix = "genid:"
 var NTAnonymousNodePrefix = "_:n"
 
@@ -221,14 +222,14 @@ RDFBlankNode.prototype.termType = 'bnode'
 RDFBlankNode.prototype.toNT = function() {
     return NTAnonymousNodePrefix + this.id
 }
-RDFBlankNode.prototype.toString = RDFBlankNode.prototype.toNT
+RDFBlankNode.prototype.toString = RDFBlankNode.prototype.toNT  
 
-// Literal
+//  Literal
 
 function RDFLiteral(value, lang, datatype) {
     this.value = value
-    this.lang=lang; // string
-    this.datatype=datatype; // term
+    this.lang=lang;   // string
+    this.datatype=datatype;  // term
     this.toString = RDFLiteralToString
     this.toNT = RDFLiteral_toNT
     return this
@@ -241,9 +242,9 @@ function RDFLiteral_toNT() {
     if (typeof str != 'string') {
     throw Error("Value of RDF literal is not string: "+str)
     }
-    str = str.replace(/\\/g, '\\\\'); // escape
+    str = str.replace(/\\/g, '\\\\');  // escape
     str = str.replace(/\"/g, '\\"');
-    str = '"' + str + '"' //'
+    str = '"' + str + '"'  //'
 
     if (this.datatype){
     str = str + '^^' + this.datatype//.toNT()
@@ -258,7 +259,7 @@ function RDFLiteralToString() {
     return this.value
 }
     
-RDFLiteral.prototype.toString = RDFLiteralToString
+RDFLiteral.prototype.toString = RDFLiteralToString   
 RDFLiteral.prototype.toNT = RDFLiteral_toNT
 
 function RDFCollection() {
@@ -272,7 +273,7 @@ RDFCollection.prototype.termType = 'collection'
 RDFCollection.prototype.toNT = function() {
     return NTAnonymousNodePrefix + this.id
 }
-RDFCollection.prototype.toString = RDFCollection.prototype.toNT
+RDFCollection.prototype.toString = RDFCollection.prototype.toNT 
 
 RDFCollection.prototype.append = function (el) {
     this.elements.push(el)
@@ -288,16 +289,16 @@ RDFCollection.prototype.close = function () {
     this.closed = true
 }
 
-// Statement
+//  Statement
 //
-// This is a triple with an optional reason.
+//  This is a triple with an optional reason.
 //
-// The reason can point to provenece or inference
+//   The reason can point to provenece or inference
 //
 function RDFStatement_toNT() {
     return (this.subject.toNT() + " "
         + this.predicate.toNT() + " "
-        + this.object.toNT() +" .")
+        +  this.object.toNT() +" .")
 }
 
 function RDFStatement(subject, predicate, object, why) {
@@ -316,9 +317,9 @@ RDFStatement.prototype.toNT = RDFStatement_toNT
 RDFStatement.prototype.toString = RDFStatement_toNT
     
 
-// Formula
+//  Formula
 //
-// Set of statements.
+//  Set of statements.
 
 function RDFFormula() {
     this.statements = []
@@ -337,7 +338,7 @@ function RDFFormula_toNT() {
 //RDFQueryFormula.termType = 'queryFormula'
 RDFFormula.prototype.termType = 'formula'
 RDFFormula.prototype.toNT = RDFFormula_toNT
-RDFFormula.prototype.toString = RDFFormula_toNT
+RDFFormula.prototype.toString = RDFFormula_toNT   
 
 RDFFormula.prototype.add = function(subj, pred, obj, why) {
     this.statements.push(new RDFStatement(subj, pred, obj, why))
@@ -349,9 +350,9 @@ RDFFormula.prototype.sym = function(uri,name) {
     if (name != null) {
         throw 'second parameter temporarily not supported';
         /*
-if (!tabulator.ns[uri]) throw 'The prefix "'+uri+'" is not set in the API';
-uri = tabulator.ns[uri] + name
-*/
+        if (!tabulator.ns[uri]) throw 'The prefix "'+uri+'" is not set in the API';
+          uri = tabulator.ns[uri] + name
+          */
     }
     return new RDFSymbol(uri)
 }
@@ -389,20 +390,20 @@ RDFFormula.prototype.registerFormula = function(accesskey){
     var formulaTerm = superFormula.bnode();
     superFormula.add(formulaTerm,rdf('type'),superFormula.sym("http://www.w3.org/2000/10/swap/log#Formula"));
     /*
-superFormula.add(formulaTerm, tabulator.ns.foaf('name'), superFormula.literal(accesskey));
-superFormula.add(formulaTerm, tabulator.ns.link('accesskey'), superFormula.literal(accesskey));
-*/
+    superFormula.add(formulaTerm, tabulator.ns.foaf('name'), superFormula.literal(accesskey));
+    superFormula.add(formulaTerm, tabulator.ns.link('accesskey'), superFormula.literal(accesskey));
+    */
     //RDFFormula.instances.push("accesskey");
 }
-/* Variable
+/*  Variable
 **
 ** Variables are placeholders used in patterns to be matched.
 ** In cwm they are symbols which are the formula's list of quantified variables.
-** In sparl they are not visibily URIs. Here we compromise, by having
+** In sparl they are not visibily URIs.  Here we compromise, by having
 ** a common special base URI for variables.
 */
 
-var RDFVariableBase = "varid:"; // We deem variabe x to be the symbol varid:x
+var RDFVariableBase = "varid:"; // We deem variabe x to be the symbol varid:x 
 
 function RDFVariable(rel) {
     this.uri = URIjoin(rel, RDFVariableBase);
@@ -426,7 +427,7 @@ RDFFormula.prototype.variable = function(name) {
 RDFVariable.prototype.hashString = RDFVariable.prototype.toNT;
 
 
-// The namespace function generator
+// The namespace function generator 
 
 function Namespace(nsuri) {
     return function(ln) { return new RDFSymbol(nsuri+(ln===undefined?'':ln)) }
@@ -497,14 +498,14 @@ RDFVariable.prototype.sameTerm = function (other) {
 
 RDFCollection.prototype.sameTerm = RDFBlankNode.prototype.sameTerm
 
-// Comparison for ordering
+//  Comparison for ordering
 //
 // These compare with ANY term
 //
 //
 // When we smush nodes we take the lowest value. This is not
 // arbitrary: we want the value actually used to be the literal
-// (or list or formula).
+// (or list or formula). 
 
 RDFLiteral.prototype.classOrder = 1
 // RDFList.prototype.classOrder = 2
@@ -514,8 +515,8 @@ RDFFormula.prototype.classOrder = 4
 RDFSymbol.prototype.classOrder = 5
 RDFBlankNode.prototype.classOrder = 6
 
-// Compaisons return sign(self - other)
-// Literals must come out before terms for smushing
+//  Compaisons return  sign(self - other)
+//  Literals must come out before terms for smushing
 
 RDFLiteral.prototype.compareTerm = function(other) {
     if (this.classOrder < other.classOrder) return -1
@@ -523,7 +524,7 @@ RDFLiteral.prototype.compareTerm = function(other) {
     if (this.value < other.value) return -1
     if (this.value > other.value) return +1
     return 0
-}
+} 
 
 RDFSymbol.prototype.compareTerm = function(other) {
     if (this.classOrder < other.classOrder) return -1
@@ -531,7 +532,7 @@ RDFSymbol.prototype.compareTerm = function(other) {
     if (this.uri < other.uri) return -1
     if (this.uri > other.uri) return +1
     return 0
-}
+} 
 
 RDFBlankNode.prototype.compareTerm = function(other) {
     if (this.classOrder < other.classOrder) return -1
@@ -539,11 +540,11 @@ RDFBlankNode.prototype.compareTerm = function(other) {
     if (this.id < other.id) return -1
     if (this.id > other.id) return +1
     return 0
-}
+} 
 
 RDFCollection.prototype.compareTerm = RDFBlankNode.prototype.compareTerm
 
-// Convenience routines
+//  Convenience routines
 
 // Only one of s p o can be undefined, and w is optional.
 RDFFormula.prototype.each = function(s,p,o,w) {
@@ -597,20 +598,20 @@ function RDFComparePredicateSubject(self, other) {
 // ends
 
 
-// Identity management and indexing for RDF
+//  Identity management and indexing for RDF
 //
-// This file provides RDFIndexedFormula a formula (set of triples) which
+// This file provides  RDFIndexedFormula a formula (set of triples) which
 // indexed by predicate, subject and object.
 //
-// It "smushes" (merges into a single node) things which are identical
+// It "smushes"  (merges into a single node) things which are identical 
 // according to owl:sameAs or an owl:InverseFunctionalProperty
 // or an owl:FunctionalProperty
 //
 // Missing: Equating predicates will not propagate these actions if there are >1
 //
-// 2005-10 Written Tim Berners-Lee
+//  2005-10 Written Tim Berners-Lee
 //
-//
+// 
 
 /*jsl:option explicit*/ // Turn on JavaScriptLint variable declaration checking
 
@@ -631,7 +632,7 @@ RDFIndexedFormula.prototype.constructor = RDFIndexedFormula;
 // RDFIndexedFormula.superclass = RDFFormula.prototype;
 RDFIndexedFormula.SuperClass = RDFFormula;
 
-var RDFArrayRemove = function(a, x) { //removes all elements equal to x from a
+var RDFArrayRemove = function(a, x) {  //removes all elements equal to x from a
     for(var i=0; i<a.length; i++) {
     if (a[i] == x) {
             a.splice(i,1);
@@ -643,20 +644,20 @@ var RDFArrayRemove = function(a, x) { //removes all elements equal to x from a
 
 //Stores an associative array that maps URIs to functions
 function RDFIndexedFormula(features) {
-    this.statements = []; // As in RDFFormula
+    this.statements = [];    // As in RDFFormula
     this.propertyAction = []; // What to do when getting statement with {s X o}
     //maps <uri> to f(F,s,p,o)
-    this.classAction = []; // What to do when adding { s type X }
-    this.redirection = []; // redirect to lexically smaller equivalent symbol
-    this.aliases = []; // reverse mapping to redirection: aliases for this
+    this.classAction = [];   // What to do when adding { s type X }
+    this.redirection = [];   // redirect to lexically smaller equivalent symbol
+    this.aliases = [];   // reverse mapping to redirection: aliases for this
     this.HTTPRedirects = []; // redirections we got from HTTP
-    this.subjectIndex = []; // Array of statements with this X as subject
-    this.predicateIndex = []; // Array of statements with this X as subject
-    this.objectIndex = []; // Array of statements with this X as object
+    this.subjectIndex = [];  // Array of statements with this X as subject
+    this.predicateIndex = [];  // Array of statements with this X as subject
+    this.objectIndex = [];  // Array of statements with this X as object
     this.namespaces = {} // Dictionary of namespace prefixes
     if (typeof features == 'undefined') features = ["sameAs",
                     "InverseFunctionalProperty", "FunctionalProperty"];
-// this.features = features
+//    this.features = features
 
     // Callbackify?
     
@@ -705,14 +706,14 @@ function RDFIndexedFormula(features) {
                 return newPropertyAction(formula, subj, handle_FP);
             }; //FP => handleFP, do add to index
 
-    function handle_IFP(formula, subj, pred, obj) {
+    function handle_IFP(formula, subj, pred, obj)  {
         var s1 = formula.any(undefined, pred, obj);
         if (typeof s1 == 'undefined') return false; // First time with this value
         formula.equate(s1, subj);
         return true;
     } //handle_IFP
 
-    function handle_FP(formula, subj, pred, obj) {
+    function handle_FP(formula, subj, pred, obj)  {
         var o1 = formula.any(subj, pred, undefined);
         if (typeof o1 == 'undefined') return false; // First time with this value
         formula.equate(o1, obj);
@@ -750,7 +751,7 @@ RDFIndexedFormula.prototype.equate = function(u1, u2) {
     var d = u1.compareTerm(u2);
     if (!d) return true; // No information in {a = a}
     var big, small;
-    if (d < 0) { // u1 less than u2
+    if (d < 0)  {  // u1 less than u2
     return this.replaceWith(u2, u1);
     } else {
     return this.replaceWith(u1, u2);
@@ -788,7 +789,7 @@ RDFIndexedFormula.prototype.replaceWith = function(big, small) {
     
     toBeFixed = this.statementsMatching(undefined, undefined, big);
     for (i=0; i < toBeFixed.length; i++) {
-        // RDFArrayRemove(this.objectIndex[big], st)
+        //  RDFArrayRemove(this.objectIndex[big], st)
         toBeFixed[i].object = small;
     hash = small.hashString()
         if (typeof this.objectIndex[hash] == 'undefined')
@@ -824,8 +825,8 @@ RDFIndexedFormula.prototype.replaceWith = function(big, small) {
     (typeof this.propertyAction[small.hashString()] == 'undefined')) {
         this.propertyAction[small.hashString()] = action;
     }
-    // tabulator.log.debug("Equate done. "+big+" to be known as "+small)
-    return true; // true means the statement does not need to be put in
+    // tabulator.log.debug("Equate done. "+big+" to be known as "+small)    
+    return true;  // true means the statement does not need to be put in
 };
 
 // Return the symbol with canonical URI as smushed
@@ -852,20 +853,20 @@ RDFIndexedFormula.prototype.uris = function(term) {
 // On input parameters, do redirection and convert constants to terms
 // We do not redirect literals
 function RDFMakeTerm(formula,val) {
-    if (typeof val != 'object') {
+    if (typeof val != 'object') {   
     if (typeof val == 'string')
         return new RDFLiteral(val);
         if (typeof val == 'number')
             return new RDFLiteral(val); // @@ differet types
         if (typeof val == 'boolean')
-            return new RDFLiteral(val?"1":"0", undefined,
+            return new RDFLiteral(val?"1":"0", undefined, 
                                             RDFSymbol.prototype.XSDboolean);
     else if (typeof val == 'number')
-        return new RDFLiteral(''+val); // @@ datatypes
+        return new RDFLiteral(''+val);   // @@ datatypes
     else if (typeof val == 'undefined')
         return undefined;
-        else // @@ add converting of dates and numbers
-        throw "Can't make Term from " + val + " of type " + typeof val;
+        else    // @@ add converting of dates and numbers
+        throw "Can't make Term from " + val + " of type " + typeof val; 
     }
     if (typeof formula.redirection == 'undefined') {
         throw 'Internal: No redirection index for formula: '+ formula+', term: '+val;
@@ -873,7 +874,7 @@ function RDFMakeTerm(formula,val) {
     var OY_VAL = val;
     var y = formula.redirection[val.hashString()];
     if (typeof y == 'undefined') return val;
-// tabulator.log.debug(" redirecting "+val+" to "+y)
+//    tabulator.log.debug(" redirecting "+val+" to "+y)
     return y;
 }
 
@@ -889,8 +890,7 @@ RDFIndexedFormula.prototype.add = function(subj, pred, obj, why) {
     subj = RDFMakeTerm(this, subj);
     pred = RDFMakeTerm(this, pred);
     obj = RDFMakeTerm(this, obj);
-    why = RDFMakeTerm(this, why);
-    
+    why = RDFMakeTerm(this, why);    
 
     // Look for strange bug that this is called with no object very occasionally
     // and only when running script in file: space
@@ -898,9 +898,7 @@ RDFIndexedFormula.prototype.add = function(subj, pred, obj, why) {
     throw ('Undefined object in identity.js#RDFIndexedFormula.prototype.add, subj='
         +subj+', pred='+pred)
     }
-
-    
-  
+      
     var hashS = subj.hashString();
     var hashP = pred.hashString();
     var hashO = obj.hashString();
@@ -908,7 +906,7 @@ RDFIndexedFormula.prototype.add = function(subj, pred, obj, why) {
     // Check we don't already know it -- esp when working with dbview
     st = this.anyStatementMatching(subj,pred,obj) // @@@@@@@ temp fix <====WATCH OUT!
     if (typeof st != 'undefined') return; // already in store
-    // tabulator.log.debug("\nActions for "+s+" "+p+" "+o+". size="+this.statements.length)
+    //    tabulator.log.debug("\nActions for "+s+" "+p+" "+o+". size="+this.statements.length)
     if (typeof this.predicateCallback != 'undefined')
     this.predicateCallback(this, pred, why);
     
@@ -917,6 +915,7 @@ RDFIndexedFormula.prototype.add = function(subj, pred, obj, why) {
     if (action && action(this, subj, pred, obj, why)) return;
     
     st = new RDFStatement(subj, pred, obj, why);
+	
     if (typeof this.subjectIndex[hashS] =='undefined') this.subjectIndex[hashS] = [];
     this.subjectIndex[hashS].push(st); // Set of things with this as subject
     
@@ -925,8 +924,10 @@ RDFIndexedFormula.prototype.add = function(subj, pred, obj, why) {
     
     if (typeof this.objectIndex[hashO] == 'undefined') this.objectIndex[hashO] = [];
     this.objectIndex[hashO].push(st); // Set of things with this as object
-    //tabulator.log.debug("ADDING {"+subj+" "+pred+" "+obj+"} "+why);
-    var newIndex=this.statements.push(st);
+    //tabulator.log.debug("ADDING    {"+subj+" "+pred+" "+obj+"} "+why);
+    
+	var newIndex=this.statements.push(st);
+	
     return this.statements[newIndex-1];
 }; //add
 
@@ -947,10 +948,10 @@ RDFIndexedFormula.prototype.nextSymbol = function(doc) {
 
 // Find an unused id for a file being edited
 /* RDFIndexedFormula.prototype.newId = function(doc) {
-for(var i=0;;i++) {
-var uri = doc.uri + '#n' + i;
-if (!this.mentionsURI(uri)) return uri;
-}
+    for(var i=0;;i++) {
+        var uri = doc.uri + '#n' + i;
+        if (!this.mentionsURI(uri)) return uri;
+    }
 }
 */
 
@@ -980,15 +981,15 @@ RDFIndexedFormula.prototype.statementsMatching = function(subj,pred,obj,why,just
     //looks for candidate statements matching a given s/p/o
     if (typeof(subj) =='undefined') {
         if (typeof(obj) =='undefined') {
-        if (typeof(pred) == 'undefined') {
+        if (typeof(pred) == 'undefined') { 
         candidates = this.statements; //all wildcards
         } else {
         candidates = this.predicateIndex[pred.hashString()];
-// tabulator.log.debug("@@Trying predciate "+p+" length "+candidates.length)
+//      tabulator.log.debug("@@Trying predciate "+p+" length "+candidates.length)
 
         if (typeof candidates == 'undefined') return [];
     }
-    // tabulator.log.debug("Trying all "+candidates.length+" statements")
+    //      tabulator.log.debug("Trying all "+candidates.length+" statements")
         } else { // subj undefined, obj defined
             candidates = this.objectIndex[obj.hashString()];
             if (typeof candidates == 'undefined') return [];
@@ -999,7 +1000,7 @@ RDFIndexedFormula.prototype.statementsMatching = function(subj,pred,obj,why,just
             }
             // tabulator.log.debug("Trying only "+candidates.length+" object statements")
         }
-    } else { // s defined
+    } else {  // s defined
         if (this.redirection[subj.hashString()])
             subj = this.redirection[subj.hashString()];
         candidates = this.subjectIndex[subj.hashString()];
@@ -1014,7 +1015,7 @@ RDFIndexedFormula.prototype.statementsMatching = function(subj,pred,obj,why,just
             if (typeof oix == 'undefined') return [];
         if (oix.length < candidates.length) {
         candidates = oix;
-// tabulator.log.debug("Wow! actually used object index instead of subj");
+//      tabulator.log.debug("Wow!  actually used object index instead of subj");
         }
     
         }
@@ -1022,16 +1023,16 @@ RDFIndexedFormula.prototype.statementsMatching = function(subj,pred,obj,why,just
     }
     
     if (typeof candidates == 'undefined') return [];
-// tabulator.log.debug("Matching {"+s+" "+p+" "+o+"} against "+n+" stmts")
+//    tabulator.log.debug("Matching {"+s+" "+p+" "+o+"} against "+n+" stmts")
     var st;
     for(var i=0; i<candidates.length; i++) {
         st = candidates[i]; //for each candidate, match terms of candidate with input, then return all
-        // tabulator.log.debug(" Matching against st=" + st +" why="+st.why);
-        if (RDFTermMatch(pred, st.predicate) && // first as simplest
+        // tabulator.log.debug("  Matching against st=" + st +" why="+st.why);
+        if (RDFTermMatch(pred, st.predicate) &&  // first as simplest
             RDFTermMatch(subj, st.subject) &&
             RDFTermMatch(obj, st.object) &&
             RDFTermMatch(why, st.why)) {
-            // tabulator.log.debug(" Found: "+st)
+            // tabulator.log.debug("   Found: "+st)
             if (justOne) return [st];
             results.push(st);
         }
@@ -1045,13 +1046,13 @@ RDFIndexedFormula.prototype.remove = function (st) {
     //tabulator.log.debug("entering remove w/ st=" + st);
     var subj = st.subject, pred = st.predicate, obj = st.object;
     /*
-if (typeof this.subjectIndex[subj.hashString()] == 'undefined')
-tabulator.log.warn ("statement not in sbj index: "+st);
-if (typeof this.predicateIndex[pred.hashString()] == 'undefined')
-tabulator.log.warn ("statement not in pred index: "+st);
-if (typeof this.objectIndex[obj.hashString()] == 'undefined')
-tabulator.log.warn ("statement not in obj index: " +st);
-*/
+    if (typeof this.subjectIndex[subj.hashString()] == 'undefined')
+        tabulator.log.warn ("statement not in sbj index: "+st);
+    if (typeof this.predicateIndex[pred.hashString()] == 'undefined')
+        tabulator.log.warn ("statement not in pred index: "+st);
+    if (typeof this.objectIndex[obj.hashString()] == 'undefined')
+        tabulator.log.warn ("statement not in obj index: " +st);
+        */
         
     RDFArrayRemove(this.subjectIndex[subj.hashString()], st);
     RDFArrayRemove(this.predicateIndex[pred.hashString()], st);
@@ -1085,7 +1086,7 @@ RDFIndexedFormula.prototype.load = function(url) {
         }
     }
 
-    xhr.open("GET", url, false); // Synchronous
+    xhr.open("GET", url, false);  // Synchronous
     xhr.send("");
 
     // Get XML DOM Tree
@@ -1106,14 +1107,14 @@ RDFIndexedFormula.prototype.load = function(url) {
 
 /** Utility**/
 
-/* @method: copyTo
-@discription: replace @template with @target and add appropriate triples (no triple removed)
-one-direction replication
-*/
+/*  @method: copyTo
+    @discription: replace @template with @target and add appropriate triples (no triple removed)
+                  one-direction replication 
+*/ 
 RDFIndexedFormula.prototype.copyTo = function(template,target,flags){
     if (!flags) flags=[];
     var statList=this.statementsMatching(template);
-    if (flags.indexOf('two-direction')!=-1)
+    if (flags.indexOf('two-direction')!=-1) 
         statList.concat(this.statementsMatching(undefined,undefined,template));
     for (var i=0;i<statList.length;i++){
         var st=statList[i];
@@ -1130,7 +1131,7 @@ RDFIndexedFormula.prototype.copyTo = function(template,target,flags){
     }
 };
 //for the case when you alter this.value (text modified in userinput.js)
-RDFLiteral.prototype.copy = function(){
+RDFLiteral.prototype.copy = function(){ 
     return new RDFLiteral(this.value,this.lang,this.datatype);
 };
 RDFBlankNode.prototype.copy = function(formula){ //depends on the formula
@@ -1138,7 +1139,7 @@ RDFBlankNode.prototype.copy = function(formula){ //depends on the formula
     formula.copyTo(this,bnodeNew);
     return bnodeNew;
 }
-/** Full N3 bits -- placeholders only to allow parsing, no functionality! **/
+/**  Full N3 bits  -- placeholders only to allow parsing, no functionality! **/
 
 RDFIndexedFormula.prototype.newUniversal = function(uri) {
     var x = this.sym(uri);
@@ -1260,7 +1261,7 @@ RDFA.CURIE.parse = function(str, namespaces) {
 };
 
 // 2007-11-25 JT
-// RDFA CURIEorURI abstraction
+// RDFA CURIEorURI abstraction 
 RDFA.CURIEorURI = {};
 
 RDFA.CURIEorURI.parse = function(str, namespaces) {
@@ -1326,9 +1327,9 @@ RDFA.each_prefixed_attr_value = function(attr_values, attr_val_func) {
   return RDFA.each_attr_value(attr_values, function(attr_value) {
 
     // don't look at non-prefixed values
-// Commented by Igor Lukanin. Otherwise the triplestore doesn't get populated
+	// Commented by Igor Lukanin. Otherwise the triplestore doesn't get populated
     //if (attr_value.indexOf(':') == -1)
-    // return;
+    //  return;
 
     // call the func
     attr_val_func(attr_value);
@@ -1351,14 +1352,14 @@ RDFA.GRDDL.DONE_LOADING = function(url) {
 RDFA.GRDDL.load = function(doc, url, callback)
 {
     /*var s = doc.createElement("script");
-s.type = 'text/javascript';
-s.src = url;
+    s.type = 'text/javascript';
+    s.src = url;
 
-// set up the callback
-RDFA.GRDDL.CALLBACKS[url] = callback;
+    // set up the callback
+    RDFA.GRDDL.CALLBACKS[url] = callback;
 
-// add it to the document tree, load it up!
-doc.getElementsByTagName('head')[0].appendChild(s);*/
+    // add it to the document tree, load it up!
+    doc.getElementsByTagName('head')[0].appendChild(s);*/
 };
 
 //
@@ -1434,7 +1435,7 @@ XH.transform = function(element) {
     // explore nodes we add along the way, only existing ones.
     var children = element.childNodes;
     for (var i=0; i < children.length; i++) {
-XH.transform(children[i]);
+	    XH.transform(children[i]);
     }
 
     // the special RELs
@@ -1529,6 +1530,16 @@ RDFA.add_triple = function (base, subject, predicate, object, literal_p, literal
       object = new RDFSymbol(Util.uri.join(object, base));
   }
   
+  //
+  // PL ----> NY This resolves the URi join code shortening the URL and so missing the proper URL for the triplestore
+  //
+  
+  if(next_node){
+  	
+		subject = new RDFSymbol(base);
+	
+  }
+  
   return RDFA.triplestore.add(subject, predicate, object, 'RDFa');
 };
 
@@ -1546,7 +1557,7 @@ RDFA.add_namespaces = function(element, namespaces) {
     var attributes = element.attributes;
     
     if (!attributes) {
-      return namespaces;
+      return namespaces;      
     }
     
     for (var i=0; i<attributes.length; i++) {
@@ -1557,7 +1568,7 @@ RDFA.add_namespaces = function(element, namespaces) {
             }
 
             if (attributes[i].name.substring(5,6) != ':') {
-              continue;
+              continue;              
             }
 
             var prefix = attributes[i].name.substring(6);
@@ -1611,12 +1622,12 @@ RDFA.complete_hanging = function(hanging, new_object) {
     
   // go through the rels
   for (var i=0; i<hanging.rels.length; i++) {
-    var triple = RDFA.add_triple(hanging.base, hanging.subject, RDFA.CURIE.parse(hanging.rels[i],hanging.namespaces), new_object, false);
+    var triple = RDFA.add_triple(hanging.base, hanging.subject, RDFA.CURIE.parse(hanging.rels[i],hanging.namespaces), new_object, false);    
   }
 
   // go through the revs
   for (var i=0; i<hanging.revs.length; i++) {
-    var triple = RDFA.add_triple(hanging.base, new_object, RDFA.CURIE.parse(hanging.revs[i],hanging.namespaces), hanging.subject, false);
+    var triple = RDFA.add_triple(hanging.base, new_object, RDFA.CURIE.parse(hanging.revs[i],hanging.namespaces), hanging.subject, false);    
   }
   
   return {
@@ -1628,6 +1639,8 @@ RDFA.complete_hanging = function(hanging, new_object) {
 RDFA.clear_hanging = function(hanging) {
   return null;
 }
+
+var next_node = false;
 
 // this function takes a given element in the DOM tree and:
 //
@@ -1651,7 +1664,7 @@ RDFA.traverse = function (element, subject, namespaces, lang, base, hanging) {
     var element_to_callback = element;
 
     // fetch some attributes so we don't need to refetch multiple times, and so code is cleaner.
-    var attr_names = ['about','src','resource','href','instanceof','typeof','rel','rev','property','content','datatype'];
+    var attr_names = ['class','about','src','resource','href','instanceof','typeof','rel','rev','property','content','datatype'];
     var attrs = {};
     for (var i=0; i < attr_names.length; i++)
       attrs[attr_names[i]] = RDFA.getNodeAttributeValue(element, attr_names[i]);
@@ -1672,10 +1685,10 @@ RDFA.traverse = function (element, subject, namespaces, lang, base, hanging) {
         // @about is a CURIEorURI
         explicit_subject = RDFA.CURIEorURI.parse(attrs['about'], namespaces);
     } else {
-// special case the HEAD
-if (element.nodeName == 'head')
-explicit_subject = RDFA.CURIEorURI.parse("",namespaces);
-}
+		  // special case the HEAD
+		  if (element.nodeName == 'head')
+			explicit_subject = RDFA.CURIEorURI.parse("",namespaces);
+	  }
 
     // warn
     if (attrs['instanceof'])
@@ -1685,8 +1698,35 @@ explicit_subject = RDFA.CURIEorURI.parse("",namespaces);
     var explicit_object = null;
 
     // @href is a right-hand, explicit object attribute
-    if (attrs['href'])
-      explicit_object = attrs['href'];
+    if (attrs['href']){
+		
+		// PL ----> NY "This fixes the wikipedia bug that I have mentioned"
+		
+		// original line - explicit_object = attrs['href'] is now line 1712;
+				
+		var url = RDFA.BASE;
+		
+		if(url.indexOf("commons.wikimedia.org/") != -1){
+			if (attrs['href'].indexOf("creativecommons") != -1) {
+				explicit_object = attrs['href'];
+				//RDFA.setNodeAttributeValue(element, "rel", "license")
+			}else{
+				
+				explicit_object = attrs['href'];
+				//RDFA.setNodeAttributeValue(element, "rel", "license")
+				
+			}
+		}else if (url.indexOf("wikipedia.org/") != -1) {
+			if (attrs['href'].indexOf("creativecommons") != -1) {
+				explicit_object = attrs['href'];								
+			}
+		}
+		else {
+			explicit_object = attrs['href'];
+		}
+		
+		
+	}
 
     // @resource is a right-hand, explicit object attribute that overrides @href.
     if (attrs['resource']) {
@@ -1696,22 +1736,22 @@ explicit_subject = RDFA.CURIEorURI.parse("",namespaces);
     }
  
     // if there's only an explicit object but no explicit subject and rel/rev
-// that explicit object becomes effectively an explicit subject
-if (attrs['rel'] == null && attrs['rev'] == null && explicit_subject == null)
-explicit_subject = explicit_object;
-
+	  // that explicit object becomes effectively an explicit subject
+	  if (attrs['rel'] == null && attrs['rev'] == null && explicit_subject == null)
+		  explicit_subject = explicit_object;
+		  
     // @typeofof replaces instanceof
     if (attrs['typeof']) {
         var rdf_type = RDFA.CURIE.parse(attrs['typeof'], namespaces);
 
         // determine the subject of typeof, which is either explicitly given, or a new blank node.
         // note that this bnode becomes the new explicit subject of any properties and rels, too, so
-        // we are effectively updating explicit_subject
+        // we are effectively updating explicit_subject 
         // 2008-01-18 JT
         // since the explicit_subject could be an empty URI ("") which will be
         // resolved relative to the base, changed conditional
 
-        explicit_subject = (explicit_subject == null ? new RDFBlankNode() : explicit_subject);
+       	explicit_subject = (explicit_subject == null ?  new RDFBlankNode() : explicit_subject);
 
         var triple = RDFA.add_triple(base, explicit_subject, RDFA.CURIE.parse("rdf:type",namespaces), rdf_type, false);
         RDFA.CALLBACK_NEW_TRIPLE_WITH_LITERAL_OBJECT(element_to_callback, triple);
@@ -1735,7 +1775,7 @@ explicit_subject = explicit_object;
         if (hanging_result.new_subject) {
           subject = hanging_result.new_subject;
         }
-      }
+      }      
     }
 
     // REL attribute
@@ -1747,7 +1787,7 @@ explicit_subject = explicit_object;
       } else {
         // we hang
         hanging = RDFA.add_hanging_rel(hanging, subject, rel_value, base, namespaces);
-      }
+      }      
     });
 
     // REV attribute
@@ -1758,7 +1798,7 @@ explicit_subject = explicit_object;
       } else {
         // we hang
         hanging = RDFA.add_hanging_rev(hanging, subject, rev_value, base, namespaces);
-      }
+      }      
     });
     
     
@@ -1781,7 +1821,7 @@ explicit_subject = explicit_object;
           }
         }
 
-        // datatype is actually a CURIE here
+        // datatype is actually a CURIE here    
         if (datatype != null) {
           datatype = RDFA.CURIE.parse(datatype, namespaces);
         }
@@ -1790,15 +1830,66 @@ explicit_subject = explicit_object;
         RDFA.each_prefixed_attr_value(attrs['property'], function(prop_value) {
           var property = RDFA.CURIE.parse(prop_value, namespaces);
           var triple = RDFA.add_triple(base, subject, property, content, true, datatype, lang);
-          RDFA.CALLBACK_NEW_TRIPLE_WITH_LITERAL_OBJECT(element_to_callback, triple);
+          RDFA.CALLBACK_NEW_TRIPLE_WITH_LITERAL_OBJECT(element_to_callback, triple);                    
         });
     }
+    	
+	//
+	// PL ---> NY Code for flickr to get author name lines below 1828 - 1831 becomes 1866-1871	
+		    
+    // if we have an explicit object, we chain
+    //if (explicit_object != null) {
+    //  RDFA.associateElementAndSubject(element, explicit_object, namespaces);
+    //  subject = explicit_object;
+    //}
+	
+	//
+	// PL ---> NY Code to handle a fake Triple for Flickr Authors
+	//
+	
+	if(attrs['class']=="username"){
+				
+		next_node=true;
+		
+	}
+		
+		
+	if (attrs['href'] != null) {
+		
+		if (next_node && (attrs['href'].indexOf("/photos/") != -1)){
+			
+			explicit_object = element.innerHTML;		
+			
+		} 			
+		
+	}
     
     // if we have an explicit object, we chain
-    if (explicit_object != null) {
-      RDFA.associateElementAndSubject(element, explicit_object, namespaces);
-      subject = explicit_object;
+    if (explicit_object != null) {	
+		
+		if(next_node){
+
+			//
+			// PL ---> NY code to handle fake flickr triple
+			//
+			
+			var property = RDFA.CURIE.parse("cc:attributionName", namespaces);
+								
+			var triple = RDFA.add_triple(base, subject, property, explicit_object, true, datatype, lang);
+            RDFA.CALLBACK_NEW_TRIPLE_WITH_LITERAL_OBJECT(element_to_callback, triple);
+			
+        	subject = explicit_object;
+			next_node=false;
+			
+		}else{
+						
+			RDFA.associateElementAndSubject(element, explicit_object, namespaces);
+        	subject = explicit_object;			
+			
+		}		
+		
     }
+	
 
     // recurse down the children
     var children = element.childNodes;
@@ -1808,17 +1899,18 @@ explicit_subject = explicit_object;
 };
 
 RDFA.parse = function(parse_document, base) {
+	
     parse_document = parse_document || document;
 
-parse_document.RDFA = RDFA;
-RDFA.document = parse_document;
-RDFA.document.__RDFA_BASE = __RDFA_BASE;
+	parse_document.RDFA = RDFA;
+	RDFA.document = parse_document;
+	RDFA.document.__RDFA_BASE = __RDFA_BASE;
     
     // is there a base
-if (typeof(base) != 'undefined')
-RDFA.BASE = base;
-else
-RDFA.BASE = parse_document.location.href;
+	if (typeof(base) != 'undefined')
+		RDFA.BASE = base;
+	else
+		RDFA.BASE = parse_document.location.href;
 
     // is it overriden by the HTML itself?
     if (parse_document.getElementsByTagName('base').length > 0)
@@ -1834,12 +1926,12 @@ RDFA.BASE = parse_document.location.href;
     namespaces['rdf'] = new Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#');
 
     // hGRDDL for XHTML1 special needs
-// RDFA.GRDDL.addProfile(__RDFA_BASE + 'xhtml1-hgrddl.js');
+//    RDFA.GRDDL.addProfile(__RDFA_BASE + 'xhtml1-hgrddl.js');
     
     // do the profiles, and then traverse
     RDFA.GRDDL.runProfiles(parse_document, function() {
-// 2008-01-18 JT
-// the <base> provides the initial subject if it's given
+//         2008-01-18 JT
+//         the <base> provides the initial subject if it's given
         RDFA.traverse(parse_document, RDFA.BASE, namespaces, null, RDFA.BASE, null);
 //
         RDFA.CALLBACK_DONE_PARSING();
@@ -1858,13 +1950,13 @@ RDFA.CALLBACK_DONE_LOADING();
 
 
 //RDFA.CALLBACK_DONE_PARSING = function() {
-// var CC = new Namespace('http://creativecommons.org/ns#');
-// var cc_license = CC('license');
+//    var CC = new Namespace('http://creativecommons.org/ns#');
+//    var cc_license = CC('license');
 
-// var XHTML = new Namespace('http://www.w3.org/1999/xhtml/vocab#');
-// var xhtml_license = XHTML('license');
+//    var XHTML = new Namespace('http://www.w3.org/1999/xhtml/vocab#');
+//    var xhtml_license = XHTML('license');
 
-// var current_page = ccffext.state.rdfa.triplestore.sym(Util.uri.join('', RDFA.BASE));
+//    var current_page = ccffext.state.rdfa.triplestore.sym(Util.uri.join('', RDFA.BASE));
 
-// var license = ccffext.state.rdfa.triplestore.the(current_page,cc_license);
+//    var license = ccffext.state.rdfa.triplestore.the(current_page,cc_license);
 //}
