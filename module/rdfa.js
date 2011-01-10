@@ -1650,6 +1650,7 @@ var next_node = false;
 // the namespaces is an associative array where the default namespace is namespaces['']
 //
 RDFA.traverse = function (element, subject, namespaces, lang, base, hanging) {
+	
     // are there namespaces declared
     namespaces = RDFA.add_namespaces(element,namespaces);
     
@@ -1664,7 +1665,7 @@ RDFA.traverse = function (element, subject, namespaces, lang, base, hanging) {
     var element_to_callback = element;
 
     // fetch some attributes so we don't need to refetch multiple times, and so code is cleaner.
-    var attr_names = ['class','about','src','resource','href','instanceof','typeof','rel','rev','property','content','datatype'];
+    var attr_names = ['nofollow','class','about','src','resource','href','instanceof','typeof','rel','rev','property','content','datatype'];
     var attrs = {};
     for (var i=0; i < attr_names.length; i++)
       attrs[attr_names[i]] = RDFA.getNodeAttributeValue(element, attr_names[i]);
@@ -1688,7 +1689,7 @@ RDFA.traverse = function (element, subject, namespaces, lang, base, hanging) {
 		  // special case the HEAD
 		  if (element.nodeName == 'head')
 			explicit_subject = RDFA.CURIEorURI.parse("",namespaces);
-	  }
+	  } 
 
     // warn
     if (attrs['instanceof'])
@@ -1696,6 +1697,8 @@ RDFA.traverse = function (element, subject, namespaces, lang, base, hanging) {
       
     // determine the object
     var explicit_object = null;
+
+	var show = false;
 
     // @href is a right-hand, explicit object attribute
     if (attrs['href']){
@@ -1707,15 +1710,24 @@ RDFA.traverse = function (element, subject, namespaces, lang, base, hanging) {
 		var url = RDFA.BASE;
 		
 		if(url.indexOf("commons.wikimedia.org/") != -1){
+			
 			if (attrs['href'].indexOf("creativecommons") != -1) {
-				explicit_object = attrs['href'];
-				//RDFA.setNodeAttributeValue(element, "rel", "license")
-			}else{
 				
-				explicit_object = attrs['href'];
-				//RDFA.setNodeAttributeValue(element, "rel", "license")
+				if(attrs['rel']=="nofollow"){
+		
+					RDFA.debug("cc licensed found " + attrs['href'])
 				
+					explicit_object = attrs['href'];
+					
+					show = true;
+					
+					namespaces["cc"] = new Namespace("http://creativecommons.org/ns#")
+		
+				}				
+				
+				//RDFA.setNodeAttributeValue(element, "rel", "license")
 			}
+			
 		}else if (url.indexOf("wikipedia.org/") != -1) {
 			if (attrs['href'].indexOf("creativecommons") != -1) {
 				explicit_object = attrs['href'];								
@@ -1760,21 +1772,28 @@ RDFA.traverse = function (element, subject, namespaces, lang, base, hanging) {
     // Now we handle the hanging stuff
     // Ben: bug fix for @about="" (2008-11-03)
     if (explicit_subject != null) {
-        subject = explicit_subject;
-        RDFA.associateElementAndSubject(element, RDFA.triplestore.sym(explicit_subject), namespaces);
-          
-        // complete hanging if necessary
-        var hanging_result = RDFA.complete_hanging(hanging, explicit_subject);
-        hanging = hanging_result.new_hanging;
+		
+		if (!show) {
+		
+			subject = explicit_subject;
+			
+			RDFA.associateElementAndSubject(element, RDFA.triplestore.sym(explicit_subject), namespaces);
+			
+			// complete hanging if necessary
+			var hanging_result = RDFA.complete_hanging(hanging, explicit_subject);
+			hanging = hanging_result.new_hanging;
+			
+		}
     } else {
       // no explicit subject, but we may need to complete the hanging triple if we declare new predicates
       // if we have @rel, @rev, @property, we behave in the same way, by attempting to complete the hanging
       if (attrs['rel'] != null || attrs['rev'] != null || attrs['property']) {
-        var hanging_result = RDFA.complete_hanging(hanging);
-        hanging = hanging_result.new_hanging;
-        if (hanging_result.new_subject) {
-          subject = hanging_result.new_subject;
-        }
+	  	
+	  		var hanging_result = RDFA.complete_hanging(hanging);
+	  		hanging = hanging_result.new_hanging;
+	  		if (hanging_result.new_subject) {
+	  			subject = hanging_result.new_subject;
+	  		}
       }      
     }
 
@@ -1782,8 +1801,11 @@ RDFA.traverse = function (element, subject, namespaces, lang, base, hanging) {
     RDFA.each_prefixed_attr_value(attrs['rel'], function(rel_value) {
 
       if (explicit_object != null) {
-        var triple = RDFA.add_triple(base, subject, RDFA.CURIE.parse(rel_value,namespaces), explicit_object, false);
-        RDFA.CALLBACK_NEW_TRIPLE_WITH_URI_OBJECT(element_to_callback, triple);
+	  	
+		if (!show) {
+			var triple = RDFA.add_triple(base, subject, RDFA.CURIE.parse(rel_value, namespaces), explicit_object, false);
+			RDFA.CALLBACK_NEW_TRIPLE_WITH_URI_OBJECT(element_to_callback, triple);
+		}
       } else {
         // we hang
         hanging = RDFA.add_hanging_rel(hanging, subject, rel_value, base, namespaces);
@@ -1874,7 +1896,7 @@ RDFA.traverse = function (element, subject, namespaces, lang, base, hanging) {
 			//
 			
 			var property = RDFA.CURIE.parse("cc:attributionName", namespaces);
-								
+			
 			var triple = RDFA.add_triple(base, subject, property, explicit_object, true, datatype, lang);
             RDFA.CALLBACK_NEW_TRIPLE_WITH_LITERAL_OBJECT(element_to_callback, triple);
 			
@@ -1882,14 +1904,34 @@ RDFA.traverse = function (element, subject, namespaces, lang, base, hanging) {
 			next_node=false;
 			
 		}else{
-						
-			RDFA.associateElementAndSubject(element, explicit_object, namespaces);
-        	subject = explicit_object;			
+			
+			if (show) {
+				
+				explicit_object = attrs['href'];
+				
+				//RDFA.debug("Committing " + base + " " + explicit_object + " " + namespaces)
+				
+				//RDFA.associateElementAndSubject(element, explicit_object, namespaces);
+				//subject = explicit_object;
+				
+				var property = RDFA.CURIE.parse("cc:license", namespaces);
+				
+				RDFA.debug(base + " " + subject + " " + property + " --- " + explicit_object + " --- " + true + " " + datatype + " " + lang);
+				
+				var triple = RDFA.add_triple(base, subject, property, explicit_object, true, datatype, lang);
+				RDFA.CALLBACK_NEW_TRIPLE_WITH_LITERAL_OBJECT(element_to_callback, triple);
+				
+			}
+			else {
+			
+				RDFA.associateElementAndSubject(element, explicit_object, namespaces);
+				subject = explicit_object;
+				
+			}			
 			
 		}		
 		
     }
-	
 
     // recurse down the children
     var children = element.childNodes;

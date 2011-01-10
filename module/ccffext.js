@@ -228,12 +228,16 @@ var ccffext =
 			
 		}
 		
+		RDFA.debug("parse function")
+		
 	    XH.transform(document.getElementsByTagName("body")[0]);
 	    XH.transform(document.getElementsByTagName("head")[0]);
 	    
 	    RDFA.reset();
 	    RDFA.parse(document);
 	    
+		RDFA.debug(RDFA.triplestore)
+		
 	    ccffext.cache.put(location, RDFA.triplestore);
 
 	    // see if the document contains license information
