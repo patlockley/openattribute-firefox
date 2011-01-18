@@ -45,6 +45,10 @@ var gCcHandler = {
 
     // Popup Handlers
     handleIconClick : function(e) {
+		
+		alert("here i am")
+		
+		alert("post overlay");
 
 	this.resetPopup();
 
@@ -209,6 +213,8 @@ var gCcHandler = {
  *  Register window load listener which adds event listeners for tab,
  *  location, and state changes. 
  **/
+
+
 window.addEventListener("load",function() {
 
     gBrowser.addEventListener(
@@ -243,6 +249,6 @@ window.addEventListener("load",function() {
 	
     });
 
-    licenses.init(gCcHandler._license_browser);
+	licenses.init(gCcHandler._license_browser);
 
 },false);

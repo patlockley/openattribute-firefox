@@ -289,3 +289,5 @@
     
     document.getElementById("viewGroup").appendChild(tab);
 }
+
+alert("ageinfo")
