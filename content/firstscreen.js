@@ -25,6 +25,8 @@ var Overlay = {
 	  
 	  if (firstrun) {
 	  
+	    //code goes here - it's very ugly - not sure the chrome works properly as it seems the browser isn't loaded?
+	  
 	  	window.setTimeout(function(){
 	  	
 	  		var win = window.open("chrome://ccffext/content/firstscreen.xul", "aboutMyExtension", "chrome,centerscreen,alwaysRaised=yes,titlebar=no");
