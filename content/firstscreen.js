@@ -26,6 +26,7 @@ var Overlay = {
 	  if (firstrun) {
 	  
 	    //code goes here - it's very ugly - not sure the chrome works properly as it seems the browser isn't loaded?
+		// Sorry if it's not any good - it's all a bit of a hack
 	  
 	  	window.setTimeout(function(){
 	  	
